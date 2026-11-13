@@ -22,15 +22,17 @@ float dcFresnel(float cosR, float r0) {
   return r0 + (1.0 - r0)*a2*a2*a;
 }
 
-// smooth, small and calm: two long waves crossing each other. They are long enough (more than 4 blocks)
-// to be seen with one sample per vertex. h: [-1.0, 1.0], slope: derivative of h along x and z
+// small, calm ripples: three waves crossing each other, 3 to 7 blocks long so that one sample per vertex shows them.
+// h: [-1.0, 1.0], slope: derivative of h along x and z
 void dcWaterWaves(vec2 p, highp float t, out float h, out vec2 slope) {
   const vec2 d1 = vec2(0.8, 0.6);
   const vec2 d2 = vec2(-0.5, 0.866);
+  const vec2 d3 = vec2(0.94, -0.34);
   float a1 = 0.9*dot(p, d1) + 0.7*t;
   float a2 = 1.4*dot(p, d2) + 0.9*t;
-  h = 0.6*sin(a1) + 0.4*sin(a2);
-  slope = (0.54*cos(a1))*d1 + (0.56*cos(a2))*d2;
+  float a3 = 2.1*dot(p, d3) + 1.2*t;
+  h = 0.5*sin(a1) + 0.3*sin(a2) + 0.2*sin(a3);
+  slope = (0.45*cos(a1))*d1 + (0.42*cos(a2))*d2 + (0.42*cos(a3))*d3;
 }
 
 // the sun or the moon, whichever is brighter now, as the light that glitters on the water. The reflection of its
@@ -51,7 +53,7 @@ void dcWaterLight(dc_environment env, float skyLight, out vec3 lightDir, out vec
 
 // color: the vertex color of the water, replaced here. wPos: lowered a little by the waves
 // viewDir: normalized, camera to surface. camPos: absolute camera position. skyLight: 0.0 ~ 1.0
-// returns the sky reflection already multiplied by the fresnel in rgb, and 1.0 in alpha as the water flag
+// returns 1.0 in alpha as the water flag (rgb is 0.0, the sky is not reflected)
 // glint: the reflected direction (xyz) and the fresnel (w), for the sun and moon reflection per pixel
 // lightDir, lightCol: the light that glitters, see dcWaterLight()
 vec4 dcWater(inout vec4 color, inout vec3 wPos, dc_skycolor skycol, dc_environment env, vec3 viewDir, vec3 camPos, float skyLight, float camDist, highp float t, out vec4 glint, out vec3 lightDir, out vec3 lightCol) {
@@ -76,10 +78,6 @@ vec4 dcWater(inout vec4 color, inout vec3 wPos, dc_skycolor skycol, dc_environme
   float cosR = max(dot(-viewDir, nrm), 0.0);
   vec3 reflDir = viewDir + 2.0*cosR*nrm; // reflect(viewDir, nrm)
 
-  // the chunks have no tonemap of their own, the sky has, so it is applied here
-  vec3 refl = colorCorrection(dcRenderSky(skycol, reflDir));
-  refl *= 0.05 + 0.95*skyLight*skyLight; // no sky reflection in the shade and in caves
-
   float fresnel = dcFresnel(cosR, DC_WATER_REFLECTIVITY);
   float opacity = 1.0 - cosR;
 
@@ -89,7 +87,7 @@ vec4 dcWater(inout vec4 color, inout vec3 wPos, dc_skycolor skycol, dc_environme
   color.rgb = DC_WATER_COLOR*(1.0 - 0.8*fresnel);
   color.a = mix(DC_WATER_OPACITY, 1.0, opacity*opacity); // clearer from above, more solid at a low angle
 
-  return vec4(refl*fresnel, 1.0);
+  return vec4(0.0, 0.0, 0.0, 1.0); // only the sun and moon are reflected, the sky is not
 }
 
 #endif
