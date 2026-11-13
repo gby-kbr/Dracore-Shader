@@ -49,4 +49,12 @@
 #define NL_NETHER_TORCH_COL     vec3(1.0,0.52,0.18)
 #define NL_END_TORCH_COL        vec3(1.0,0.52,0.18)
 
+/* Fog, overworld only */
+#define NL_FOG_DENSITY 0.003  // 0.0015 thin ~ 0.012 thick, light lost per block at sea level
+#define NL_FOG_FALLOFF 0.02   // 0.008 deep layer ~ 0.05 thin ground mist, thinning with height
+#define NL_FOG_RAIN    2.0    // 0.0 none ~ 5.0 dense, extra fog in rain
+#define NL_FOG_DAWN    1.5    // 0.0 none ~ 4.0 dense, extra mist at sunrise and sunset
+#define NL_GROUND_MIST 0.002  // 0.0 none ~ 0.006 thick, low patchy mist over water and ground
+#define NL_GROUND_MIST_FALLOFF 0.08 // 0.05 deep layer ~ 0.25 thin layer hugging the ground
+
 #endif

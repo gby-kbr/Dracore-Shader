@@ -3,16 +3,19 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
     $input i_data1, i_data2, i_data3
 #endif
 
-$output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_lightmapUV, v_texcoord0, v_worldPos, v_worldPosition
+$output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fogAdd, v_fogMul, v_lightmapUV, v_texcoord0, v_worldPos, v_worldPosition
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
+#include <dracore/main.sh>
 
 uniform vec4 RenderChunkFogAlpha;
 uniform vec4 FogAndDistanceControl;
 uniform vec4 ViewPositionAndTime;
 uniform vec4 FogColor;
 uniform vec4 MeshContext;
+uniform vec4 TimeOfDay;
+uniform vec4 CameraPosition;
 
 void main() {
 #ifdef INSTANCING
@@ -56,7 +59,6 @@ void main() {
 
     float camDist = length(ViewPositionAndTime.xyz - worldPos);
     float fogIntensity = clamp((((camDist / fogAndDist.z) + RenderChunkFogAlpha.x) - fogAndDist.x) / (fogAndDist.y - fogAndDist.x), 0.0, 1.0);
-    vec4 fog = vec4(FogColor.rgb, fogIntensity);
 
 #if defined(TRANSPARENT)
     if (a_color0.a < 0.95) {
@@ -64,11 +66,21 @@ void main() {
     }
 #endif
 
+    // fog is worked out here, once per vertex and not per pixel
+    vec3 fogMul = vec3_splat(1.0 - fogIntensity);
+    vec3 fogAdd = FogColor.rgb*fogIntensity;
+    if (MeshContext.x < 0.5) {
+        nl_environment env = nlDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+        nl_skycolor skycol = nlSkyColors(env);
+        nlFogTerms(worldPos - ViewPositionAndTime.xyz, CameraPosition.xyz, lightmapUV.y, ViewPositionAndTime.w, env, skycol, FogColor.rgb, fogIntensity, fogMul, fogAdd);
+    }
+    v_fogMul = fogMul;
+    v_fogAdd = fogAdd;
+
     v_clipPosition = position;
     v_worldPosition = vec4(worldPos, 1.0);
     v_color0 = color;
     v_ditheringAndMaskTinting = ditheringAndMaskTinting;
-    v_fog = fog;
     v_lightmapUV = lightmapUV;
     v_texcoord0 = uv0;
     v_worldPos = worldPos;

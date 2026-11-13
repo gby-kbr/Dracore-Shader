@@ -1,4 +1,4 @@
-$input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_lightmapUV, v_texcoord0, v_worldPos
+$input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_fogAdd, v_fogMul, v_lightmapUV, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
@@ -77,7 +77,7 @@ void main() {
         detectNether(FogColor.rgb, FogAndDistanceControl.xy)
     );
     diffuse.rgb *= nlAddTorchLight(ambientLight, torchColor, blockLight);
-    diffuse.rgb = mix(diffuse.rgb, FogColor.rgb, v_fog.a);
+    diffuse.rgb = diffuse.rgb*v_fogMul + v_fogAdd; // fog, worked out in the vertex shader
 
     gl_FragColor = diffuse;
 #endif

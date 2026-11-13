@@ -10,5 +10,6 @@
 #include "functions/detection.h"
 #include "functions/sky.h"
 #include "functions/lighting.h"
+#include "functions/fog.h"
 
 #endif
