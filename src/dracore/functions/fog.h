@@ -26,6 +26,7 @@ float dcFogOpticalDepth(float camY, float dirY, float dist, float rain, float da
 
 // low mist that clings to the water and the ground. The density falls quickly with height, so it has a
 // closed form too. The patches drift with the wind and are sampled once, in the middle of the ray
+
 float dcGroundMist(float camY, float dirY, float dist, vec2 midXZ, float t, float rain, float dawn) {
   float b = DC_GROUND_MIST_FALLOFF;
   float strength = DC_GROUND_MIST*(0.6 + 1.4*dawn + rain);
@@ -33,8 +34,8 @@ float dcGroundMist(float camY, float dirY, float dist, vec2 midXZ, float t, floa
   float k = abs(x) < 0.001 ? 1.0 - 0.5*x : (1.0 - exp(-x))/x;
   float d0 = strength*exp(-b*max(camY - DC_SEA_LEVEL, -10.0));
   vec2 q = midXZ + vec2(1.0, 0.45)*2.5*t;
-  float patch = 0.5 + 0.5*sin(0.045*q.x + 0.03*q.y)*sin(0.03*q.y - 0.02*q.x);
-  return min(d0*dist*k*(3.0*patch*patch), 8.0); // thickness [0.0, 3.0], around 1.0
+  float patchFactor = 0.5 + 0.5*sin(0.045*q.x + 0.03*q.y)*sin(0.03*q.y - 0.02*q.x);
+  return min(d0*dist*k*(3.0*patchFactor*patchFactor), 8.0);
 }
 
 // relPos: camera to surface. camPos: absolute camera position. skyLight: 0.0 ~ 1.0, caves get no sky fog
