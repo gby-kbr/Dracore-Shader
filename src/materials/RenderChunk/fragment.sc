@@ -2,8 +2,10 @@ $input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_f
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
+#include <dracore/main.sh>
 
 uniform vec4 FogColor;
+uniform vec4 FogAndDistanceControl;
 uniform vec4 DitherParams;
 uniform vec4 DitherParams2[3];
 uniform vec4 ViewPositionAndTime;
@@ -66,7 +68,15 @@ void main() {
     }
 #endif
 
-    diffuse.rgb *= texture2D(s_LightMapTexture, v_lightmapUV).rgb;
+    // ambient light has no block light, the block light gets the newb torch color
+    vec3 ambientLight = texture2D(s_LightMapTexture, vec2(0.0, v_lightmapUV.y)).rgb;
+    float blockLight = luminance(texture2D(s_LightMapTexture, vec2(v_lightmapUV.x, 0.0)).rgb);
+    vec3 torchColor = nlTorchColor(
+        detectUnderwater(FogColor.rgb, FogAndDistanceControl.xy),
+        detectEnd(FogColor.rgb),
+        detectNether(FogColor.rgb, FogAndDistanceControl.xy)
+    );
+    diffuse.rgb *= nlAddTorchLight(ambientLight, torchColor, blockLight);
     diffuse.rgb = mix(diffuse.rgb, FogColor.rgb, v_fog.a);
 
     gl_FragColor = diffuse;

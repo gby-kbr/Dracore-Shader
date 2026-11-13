@@ -9,5 +9,6 @@
 #include "functions/tonemap.h"
 #include "functions/detection.h"
 #include "functions/sky.h"
+#include "functions/lighting.h"
 
 #endif

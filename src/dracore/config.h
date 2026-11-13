@@ -42,4 +42,11 @@
 /* Underwater */
 #define NL_UNDERWATER_TINT vec3(0.9,1.0,0.9) // fog tint color when underwater
 
+/* Torch (block light) colors */
+#define NL_TORCHLIGHT_INTENSITY 1.0  // 0.5 weak ~ 3.0 bright
+#define NL_OVERWORLD_TORCH_COL  vec3(1.0,0.52,0.18)
+#define NL_UNDERWATER_TORCH_COL vec3(1.0,0.52,0.18)
+#define NL_NETHER_TORCH_COL     vec3(1.0,0.52,0.18)
+#define NL_END_TORCH_COL        vec3(1.0,0.52,0.18)
+
 #endif
