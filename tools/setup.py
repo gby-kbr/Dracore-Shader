@@ -43,7 +43,7 @@ def _shaderc_url(os_name: str, arch: str):
 
 def _termux_fix():
     # libc++_shared.so not found on termux
-    lib_path = os.path.join("tool", "lib")
+    lib_path = os.path.join("tools", "lib")
     os.makedirs(lib_path, exist_ok=True)
     termux_lib = "/data/data/com.termux/files/usr/lib/libc++_shared.so"
     target = os.path.join(lib_path, "libc++_shared.so")
