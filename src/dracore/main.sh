@@ -6,6 +6,8 @@
 // Requires <bgfx_shader.sh> to be included first.
 
 #include "config.h"
+#include "functions/tonemap.h"
 #include "functions/detection.h"
+#include "functions/sky.h"
 
 #endif
