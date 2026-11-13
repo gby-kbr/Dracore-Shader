@@ -5,8 +5,8 @@ import re
 from rich.console import Console
 from util import PROJECT_PATH, SRC_PATH
 
-FUNC_DIR = os.path.join(SRC_PATH, "bedroalism", "functions")
-CONFIG = os.path.join(SRC_PATH, "bedroalism", "config.h")
+FUNC_DIR = os.path.join(SRC_PATH, "dracore", "functions")
+CONFIG = os.path.join(SRC_PATH, "dracore", "config.h")
 FUNC_DEF = re.compile(r"^(?:float|int|bool|void|vec[234]|mat[234]|br\w+)\s+(br\w+)\s*\(", re.M)
 REQUIRED_FILES = ["material.json", "varying.def.sc", "vertex.sc", "fragment.sc"]
 
