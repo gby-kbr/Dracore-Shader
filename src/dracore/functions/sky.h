@@ -10,7 +10,10 @@
 
 struct nl_skycolor {
   vec3 zenith;
-  vec3 horizon;
+  vec3 horizon;      // day, night and rain only
+  vec3 dawnHorizon;
+  float dawn;        // [0.0, 1.0] how much dawn there is, it only reaches the horizon near the sun
+  vec3 sunDir;
 };
 
 nl_skycolor nlOverworldSkyColors(nl_environment env) {
@@ -24,7 +27,6 @@ nl_skycolor nlOverworldSkyColors(nl_environment env) {
   dawnFactor *= dawnFactor*dawnFactor;
   dawnFactor *= mix(1.0, dawnFactor*dawnFactor, nightFactor);
   s.zenith = mix(s.zenith, NL_DAWN_ZENITH_COL, dawnFactor);
-  s.horizon = mix(s.horizon, NL_DAWN_HORIZON_COL, dawnFactor);
 
   float zh = dot(s.zenith, vec3_splat(0.33));
   float hh = dot(s.horizon, vec3_splat(0.33));
@@ -32,7 +34,13 @@ nl_skycolor nlOverworldSkyColors(nl_environment env) {
   s.zenith = mix(s.zenith, NL_RAIN_ZENITH_COL*zh, rainMix);
   s.horizon = mix(s.horizon, NL_RAIN_HORIZON_COL*hh, rainMix);
 
+  // the dawn color only reaches the horizon around the sun, see nlRenderSky()
+  s.dawnHorizon = NL_DAWN_HORIZON_COL;
+  s.dawn = dawnFactor*(1.0 - rainMix);
+  s.sunDir = env.sunDir;
+
   if (env.underwater) {
+    s.dawn = 0.0;
     vec3 underwaterFog = env.fogCol*env.fogCol*NL_UNDERWATER_TINT;
     s.zenith = mix(2.0*underwaterFog, underwaterFog*zh, 0.8);
     s.horizon = mix(2.0*underwaterFog, underwaterFog*hh, 0.8);
@@ -50,7 +58,9 @@ vec3 nlRenderSky(nl_skycolor s, vec3 viewDir) {
   float up = max(viewDir.y, 0.0); // below the horizon the sky keeps the horizon color
   float vh = 1.0 - up*up;
   float gradient = vh*vh*vh; // a long soft fade from the horizon to the zenith
-  vec3 sky = mix(s.zenith, s.horizon, gradient);
+  float nearSun = smoothstep(-0.2, 0.9, dot(viewDir, s.sunDir)); // dawn color only around the sun
+  vec3 horizon = mix(s.horizon, s.dawnHorizon, s.dawn*nearSun);
+  vec3 sky = mix(s.zenith, horizon, gradient);
   return sky*(0.5 + 0.3*gradient);
 }
 
