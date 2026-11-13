@@ -4,7 +4,7 @@
       "ESSL_300"
     ],
     "merge_source": [
-      "../../tool/data/materials"
+      "../../tools/data/materials"
     ],
     "include_patterns": [
       "Actor",
