@@ -62,7 +62,7 @@ def run(console: Console) -> list:
     included = set()
     for f, t in text.items():
         for inc in re.findall(r'#include\s*[<"]([^>"]+)[>"]', t):
-            if inc.startswith("bedroalism/"):
+            if inc.startswith("dracore/"):
                 path = os.path.join(SRC_PATH, inc)
             elif inc.endswith(".h") and os.path.exists(os.path.join(os.path.dirname(f), inc)):
                 path = os.path.join(os.path.dirname(f), inc)
