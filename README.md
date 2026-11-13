@@ -5,7 +5,7 @@ Render Dragon shaders for Bedrock that are balanced and lightweight for users
 - Sky colors with a smooth gradient from horizon to zenith, dawn color only around the sun
 - Newb torch color for all light-emitting blocks
 - Lightweight height fog with a low ground mist
-- Realistic, calm water that replaces the vanilla water
+- Realistic, calm water that replaces the vanilla water, with sun and moon reflection
 - Reinhard-Jodie color correction with exposure and gamma
 
 All settings are in `src/dracore/config.h`.

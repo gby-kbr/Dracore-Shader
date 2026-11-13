@@ -50,5 +50,7 @@
 #define DC_WATER_WAVE_SPEED   0.8   // 0.2 calm ~ 2.0 turbulent
 #define DC_WATER_BUMP         0.08  // 0.0 flat ~ 0.2 bumpy, how much the waves tilt the reflection
 #define DC_WATER_WAVE         0.05  // 0.0 flat ~ 0.15, how far the waves lower the surface, in blocks
+#define DC_WATER_SUN_GLITTER  1.0   // 0.0 none ~ 2.0 strong, reflection of the sun and the moon
+#define DC_WATER_SUN_SIZE     0.0583 // radius of the sun reflection, in radians. Set it to the visible sun disc
 
 #endif

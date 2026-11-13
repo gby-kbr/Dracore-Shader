@@ -3,7 +3,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
     $input i_data1, i_data2, i_data3
 #endif
 
-$output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fogAdd, v_fogMul, v_lightmapUV, v_refl, v_texcoord0, v_worldPos, v_worldPosition
+$output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_glint, v_lightCol, v_lightDir, v_lightmapUV, v_refl, v_texcoord0, v_worldPos, v_worldPosition
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
@@ -59,6 +59,9 @@ void main() {
     dc_environment env;
     dc_skycolor skycol;
     vec4 refl = vec4_splat(0.0); // water: reflection*fresnel, water flag in alpha
+    vec4 glint = vec4_splat(0.0); // water: reflected direction, fresnel
+    vec3 lightDir = vec3(0.0, 1.0, 0.0);
+    vec3 lightCol = vec3_splat(0.0);
     if (MeshContext.x < 0.5) {
         env = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
         skycol = dcSkyColors(env);
@@ -67,7 +70,7 @@ void main() {
         if (a_color0.b > 0.3 && a_color0.a < 0.95) {
             vec3 relPos = worldPos - ViewPositionAndTime.xyz;
             float dist = length(relPos);
-            refl = dcWater(color, worldPos, skycol, env.underwater, relPos/max(dist, 0.0001), CameraPosition.xyz, lightmapUV.y, dist, ViewPositionAndTime.w);
+            refl = dcWater(color, worldPos, skycol, env, relPos/max(dist, 0.0001), CameraPosition.xyz, lightmapUV.y, dist, ViewPositionAndTime.w, glint, lightDir, lightCol);
         }
 #endif
     }
@@ -90,9 +93,11 @@ void main() {
     if (MeshContext.x < 0.5) {
         dcFogTerms(worldPos - ViewPositionAndTime.xyz, CameraPosition.xyz, lightmapUV.y, ViewPositionAndTime.w, env, skycol, FogColor.rgb, fogIntensity, fogMul, fogAdd);
     }
-    v_fogMul = fogMul;
-    v_fogAdd = fogAdd;
+    v_fog = vec4(fogAdd, fogMul.x);
     v_refl = refl;
+    v_glint = glint;
+    v_lightDir = lightDir;
+    v_lightCol = lightCol;
 
     v_clipPosition = position;
     v_worldPosition = vec4(worldPos, 1.0);

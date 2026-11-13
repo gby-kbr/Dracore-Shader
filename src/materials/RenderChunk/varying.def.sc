@@ -14,6 +14,8 @@ vec2          v_lightmapUV              : TEXCOORD1;
 centroid vec2 v_texcoord0               : TEXCOORD0;
 vec3          v_worldPos                : TEXCOORD3;
 vec4          v_worldPosition           : COLOR3;
-vec3          v_fogMul                  : TEXCOORD4; // fog: color*mul + add
-vec3          v_fogAdd                  : TEXCOORD5;
+vec4          v_fog                     : TEXCOORD4; // fog: color*a + rgb (the multiplier is the same for all channels)
 vec4          v_refl                    : TEXCOORD6; // water: reflection*fresnel, water flag in alpha
+vec4          v_glint                   : TEXCOORD7; // water: reflected direction, fresnel
+vec3          v_lightDir                : COLOR2;    // water: sun or moon direction
+vec3          v_lightCol                : TEXCOORD5; // water: color and brightness of the sun or moon reflection

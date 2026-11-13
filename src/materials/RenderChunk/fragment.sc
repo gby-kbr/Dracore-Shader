@@ -1,4 +1,4 @@
-$input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_fogAdd, v_fogMul, v_lightmapUV, v_refl, v_texcoord0, v_worldPos
+$input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_glint, v_lightCol, v_lightDir, v_lightmapUV, v_refl, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
@@ -89,8 +89,17 @@ void main() {
     diffuse.rgb *= dcAddTorchLight(ambientLight, torchColor, blockLight);
 #if defined(TRANSPARENT)
     diffuse.rgb += v_refl.rgb; // water: sky reflection, after the lighting
+    if (isWater) {
+        // reflection of the sun or moon disc. The distance between the two unit vectors is their angle, and
+        // unlike a dot product close to 1.0 it stays precise at low float precision
+        float angle = length(normalize(v_glint.xyz) - v_lightDir);
+        float disc = 1.0 - smoothstep(0.767*DC_WATER_SUN_SIZE, DC_WATER_SUN_SIZE, angle);
+        if (disc > 0.0) {
+            diffuse.rgb += colorCorrection(v_lightCol*(DC_WATER_SUN_GLITTER*disc*v_glint.w));
+        }
+    }
 #endif
-    diffuse.rgb = diffuse.rgb*v_fogMul + v_fogAdd; // fog, worked out in the vertex shader
+    diffuse.rgb = diffuse.rgb*v_fog.a + v_fog.rgb; // fog, worked out in the vertex shader
 
     gl_FragColor = diffuse;
 #endif
