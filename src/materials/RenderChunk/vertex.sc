@@ -3,7 +3,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
     $input i_data1, i_data2, i_data3
 #endif
 
-$output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fogAdd, v_fogMul, v_lightmapUV, v_texcoord0, v_worldPos, v_worldPosition
+$output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fogAdd, v_fogMul, v_lightmapUV, v_refl, v_texcoord0, v_worldPos, v_worldPosition
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
@@ -55,6 +55,23 @@ void main() {
     float ditherY = float((uv1_16.y & 256u) != 0u ? 1.0 : 0.0);
     vec2 ditheringAndMaskTinting = vec2(ditherX, ditherY);
 
+    // the environment is needed by the fog and by the water
+    dc_environment env;
+    dc_skycolor skycol;
+    vec4 refl = vec4_splat(0.0); // water: reflection*fresnel, water flag in alpha
+    if (MeshContext.x < 0.5) {
+        env = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+        skycol = dcSkyColors(env);
+#if defined(TRANSPARENT) && !(defined(RENDER_AS_BILLBOARDS) || defined(SEASONS))
+        // the vanilla water is replaced, it has a bluish color and is see-through
+        if (a_color0.b > 0.3 && a_color0.a < 0.95) {
+            vec3 relPos = worldPos - ViewPositionAndTime.xyz;
+            float dist = length(relPos);
+            refl = dcWater(color, worldPos, skycol, env.underwater, relPos/max(dist, 0.0001), CameraPosition.xyz, lightmapUV.y, dist, ViewPositionAndTime.w);
+        }
+#endif
+    }
+
     vec4 position = jitterVertexPosition(worldPos);
 
     float camDist = length(ViewPositionAndTime.xyz - worldPos);
@@ -62,7 +79,8 @@ void main() {
 
 #if defined(TRANSPARENT)
     if (a_color0.a < 0.95) {
-        color.a = mix(a_color0.a, 1.0, clamp(camDist / FogAndDistanceControl.w, 0.0, 1.0));
+        float baseAlpha = refl.a > 0.5 ? color.a : a_color0.a; // water has its own opacity
+        color.a = mix(baseAlpha, 1.0, clamp(camDist / FogAndDistanceControl.w, 0.0, 1.0));
     }
 #endif
 
@@ -70,12 +88,11 @@ void main() {
     vec3 fogMul = vec3_splat(1.0 - fogIntensity);
     vec3 fogAdd = FogColor.rgb*fogIntensity;
     if (MeshContext.x < 0.5) {
-        dc_environment env = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
-        dc_skycolor skycol = dcSkyColors(env);
         dcFogTerms(worldPos - ViewPositionAndTime.xyz, CameraPosition.xyz, lightmapUV.y, ViewPositionAndTime.w, env, skycol, FogColor.rgb, fogIntensity, fogMul, fogAdd);
     }
     v_fogMul = fogMul;
     v_fogAdd = fogAdd;
+    v_refl = refl;
 
     v_clipPosition = position;
     v_worldPosition = vec4(worldPos, 1.0);

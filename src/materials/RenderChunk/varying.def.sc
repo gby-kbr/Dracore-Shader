@@ -16,3 +16,4 @@ vec3          v_worldPos                : TEXCOORD3;
 vec4          v_worldPosition           : COLOR3;
 vec3          v_fogMul                  : TEXCOORD4; // fog: color*mul + add
 vec3          v_fogAdd                  : TEXCOORD5;
+vec4          v_refl                    : TEXCOORD6; // water: reflection*fresnel, water flag in alpha

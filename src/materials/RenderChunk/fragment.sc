@@ -1,4 +1,4 @@
-$input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_fogAdd, v_fogMul, v_lightmapUV, v_texcoord0, v_worldPos
+$input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_fogAdd, v_fogMul, v_lightmapUV, v_refl, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
@@ -42,12 +42,22 @@ void main() {
     }
 #endif
 
+#if defined(TRANSPARENT) && !defined(SEASONS)
+    bool isWater = v_refl.a > 0.5;
+#else
+    const bool isWater = false;
+#endif
+
 #if defined(SEASONS)
     diffuse.rgb *= mix(vec3_splat(1.0), texture2D(s_SeasonsTexture, v_color0.xy).rgb * 2.0, v_color0.b);
     diffuse.rgb *= v_color0.a;
     diffuse.a = 1.0;
 #else
-    if (v_ditheringAndMaskTinting.y > 0.5) {
+    if (isWater) {
+        // the vanilla water texture is replaced by a plain color, color and opacity come from the vertex shader
+        diffuse.rgb = vec3_splat(1.0 - DC_WATER_TEX_OPACITY*(1.0 - diffuse.b*1.8)) * v_color0.rgb;
+        diffuse.a = v_color0.a;
+    } else if (v_ditheringAndMaskTinting.y > 0.5) {
         diffuse.rgb = mix(diffuse.rgb, diffuse.rgb * v_color0.rgb, diffuse.a) * v_color0.a;
         diffuse.a = 1.0;
     } else {
@@ -77,6 +87,9 @@ void main() {
         detectNether(FogColor.rgb, FogAndDistanceControl.xy)
     );
     diffuse.rgb *= dcAddTorchLight(ambientLight, torchColor, blockLight);
+#if defined(TRANSPARENT)
+    diffuse.rgb += v_refl.rgb; // water: sky reflection, after the lighting
+#endif
     diffuse.rgb = diffuse.rgb*v_fogMul + v_fogAdd; // fog, worked out in the vertex shader
 
     gl_FragColor = diffuse;

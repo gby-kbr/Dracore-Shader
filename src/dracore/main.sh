@@ -11,5 +11,6 @@
 #include "functions/sky.h"
 #include "functions/lighting.h"
 #include "functions/fog.h"
+#include "functions/water.h"
 
 #endif

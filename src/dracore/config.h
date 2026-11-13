@@ -42,4 +42,13 @@
 #define DC_GROUND_MIST 0.002  // 0.0 none ~ 0.006 thick, low patchy mist over water and ground
 #define DC_GROUND_MIST_FALLOFF 0.08 // 0.05 deep layer ~ 0.25 thin layer hugging the ground
 
+/* Water */
+#define DC_WATER_COLOR        vec3(0.08,0.26,0.36) // color of the water body in daylight
+#define DC_WATER_OPACITY      0.55  // 0.0 clear ~ 1.0 solid, looking straight down
+#define DC_WATER_REFLECTIVITY 0.04  // 0.02 realistic ~ 0.1 mirror like, reflection at a steep angle
+#define DC_WATER_TEX_OPACITY  0.0   // 0.0 plain water ~ 1.0 vanilla water texture
+#define DC_WATER_WAVE_SPEED   0.8   // 0.2 calm ~ 2.0 turbulent
+#define DC_WATER_BUMP         0.08  // 0.0 flat ~ 0.2 bumpy, how much the waves tilt the reflection
+#define DC_WATER_WAVE         0.05  // 0.0 flat ~ 0.15, how far the waves lower the surface, in blocks
+
 #endif
