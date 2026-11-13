@@ -7,8 +7,8 @@ from rich.console import Console
 CAN_BUILD_ALL = os.name == "nt"
 PROFILE = "multiplatform"  # Android + iOS + Windows in one material.bin, the only target of this project
 
-CONF_FILE = os.path.join("tool", "data", ".builder.pkl")
-DATA_PATH = os.path.join("tool", "data")
+CONF_FILE = os.path.join("tools", "data", ".builder.pkl")
+DATA_PATH = os.path.join("tools", "data")
 MATERIALS_SRC_PATH = os.path.join(DATA_PATH, "materials")
 RELEASE = "https://github.com/devendrn/newb-shader/releases/download/dev/"
 MAT_SRC_URL = RELEASE + "src-materials-1.26.60.zip"
