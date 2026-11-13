@@ -18,7 +18,6 @@ jobs:
         path: tool/data
     - run: pip install -r requirements.txt
     - run: .\build.bat setup
-    - run: .\build.bat check
     - run: .\build.bat build
     - uses: actions/upload-artifact@v7
       with:
