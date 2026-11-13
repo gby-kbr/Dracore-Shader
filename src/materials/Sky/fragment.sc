@@ -27,7 +27,7 @@ void main() {
 
     nl_skycolor skycol = nlOverworldSkyColors(env);
 
-    vec3 skyColor = nlRenderSky(skycol, env, -viewDir, v_underwaterRainTimeDay.z, true);
+    vec3 skyColor = nlRenderSky(skycol, viewDir);
 
     skyColor = colorCorrection(skyColor);
 
