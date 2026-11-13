@@ -7,7 +7,7 @@ from util import PROJECT_PATH, SRC_PATH
 
 FUNC_DIR = os.path.join(SRC_PATH, "dracore", "functions")
 CONFIG = os.path.join(SRC_PATH, "dracore", "config.h")
-FUNC_DEF = re.compile(r"^(?:float|int|bool|void|vec[234]|mat[234]|br\w+)\s+(br\w+)\s*\(", re.M)
+FUNC_DEF = re.compile(r"^(?:float|int|bool|void|vec[234]|mat[234]|dc\w+)\s+(dc\w+)\s*\(", re.M)
 REQUIRED_FILES = ["material.json", "varying.def.sc", "vertex.sc", "fragment.sc"]
 
 
@@ -25,8 +25,11 @@ def run(console: Console) -> list:
     """Source level audit: every function, define and file must be defined, included and used.
     Returns the list of problems, empty when all is consistent."""
     errors = []
-    files = glob.glob(os.path.join(SRC_PATH, "**", "*.h"), recursive=True) + \
-        glob.glob(os.path.join(SRC_PATH, "**", "*.sc"), recursive=True)
+    files = (
+    glob.glob(os.path.join(SRC_PATH, "**", "*.h"), recursive=True)
+    + glob.glob(os.path.join(SRC_PATH, "**", "*.sc"), recursive=True)
+    + glob.glob(os.path.join(SRC_PATH, "**", "*.sh"), recursive=True)
+    )
     text = {f: _strip_comments(_read(f)) for f in files}
     headers = sorted(glob.glob(os.path.join(FUNC_DIR, "*.h")))
 
@@ -43,7 +46,7 @@ def run(console: Console) -> list:
             errors.append(f"function {name} in {os.path.relpath(h, SRC_PATH)} is never called")
 
     # config: every define is used, every BR_ name that is used is defined somewhere
-    config_names = set(re.findall(r"#define\s+(BR_\w+)", text[CONFIG]))
+    config_names = set(re.findall(r"#define\s+(DC_\w+)", text[CONFIG]))
     all_defined = set(config_names)
     for t in text.values():
         all_defined |= set(re.findall(r"#define\s+(BR_\w+)", t))
