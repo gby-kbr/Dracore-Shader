@@ -10,7 +10,7 @@
 
 // Reinhard on the luminance keeps the hue of saturated colors, Reinhard per channel keeps them
 // from turning grey. The per channel result decides how much of each is used
-vec3 nlReinhardJodie(vec3 col) {
+vec3 dcReinhardJodie(vec3 col) {
   float l = luminance(col);
   vec3 perChannel = col/(1.0 + col);
   vec3 byLuminance = col/(1.0 + l);
@@ -18,9 +18,9 @@ vec3 nlReinhardJodie(vec3 col) {
 }
 
 vec3 colorCorrection(vec3 col) {
-  col *= NL_EXPOSURE;
-  col = nlReinhardJodie(col);
-  return pow(col, vec3_splat(1.0/NL_GAMMA));
+  col *= DC_EXPOSURE;
+  col = dcReinhardJodie(col);
+  return pow(col, vec3_splat(1.0/DC_GAMMA));
 }
 
 #endif

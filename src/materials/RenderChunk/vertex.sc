@@ -70,9 +70,9 @@ void main() {
     vec3 fogMul = vec3_splat(1.0 - fogIntensity);
     vec3 fogAdd = FogColor.rgb*fogIntensity;
     if (MeshContext.x < 0.5) {
-        nl_environment env = nlDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
-        nl_skycolor skycol = nlSkyColors(env);
-        nlFogTerms(worldPos - ViewPositionAndTime.xyz, CameraPosition.xyz, lightmapUV.y, ViewPositionAndTime.w, env, skycol, FogColor.rgb, fogIntensity, fogMul, fogAdd);
+        dc_environment env = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+        dc_skycolor skycol = dcSkyColors(env);
+        dcFogTerms(worldPos - ViewPositionAndTime.xyz, CameraPosition.xyz, lightmapUV.y, ViewPositionAndTime.w, env, skycol, FogColor.rgb, fogIntensity, fogMul, fogAdd);
     }
     v_fogMul = fogMul;
     v_fogAdd = fogAdd;

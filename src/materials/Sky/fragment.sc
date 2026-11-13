@@ -16,7 +16,7 @@ void main() {
   #ifndef INSTANCING
     vec3 viewDir = normalize(v_worldPos);
 
-    nl_environment env;
+    dc_environment env;
     env.end = false;
     env.nether = false;
     env.underwater = v_underwaterRainTimeDay.x > 0.5;
@@ -25,9 +25,9 @@ void main() {
     env.fogCol = FogColor.rgb;
     env = calculateSunParams(env, TimeOfDay.x);
 
-    nl_skycolor skycol = nlOverworldSkyColors(env);
+    dc_skycolor skycol = dcOverworldSkyColors(env);
 
-    vec3 skyColor = nlRenderSky(skycol, viewDir);
+    vec3 skyColor = dcRenderSky(skycol, viewDir);
 
     skyColor = colorCorrection(skyColor);
 

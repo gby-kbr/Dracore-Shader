@@ -6,7 +6,7 @@
 
 #include "utils.h"
 
-struct nl_environment {
+struct dc_environment {
   bool end;
   bool nether;
   bool underwater;
@@ -57,17 +57,17 @@ float detectDayFactor(vec3 FOG_COLOR) {
   return min(dot(FOG_COLOR, vec3(0.5,0.7,0.5)), 1.0);
 }
 
-nl_environment calculateSunParams(nl_environment env, float TIME_OF_DAY) {
+dc_environment calculateSunParams(dc_environment env, float TIME_OF_DAY) {
   float t = 2.0 * PI * TIME_OF_DAY;
   vec3 sunDir = vec3(sin(t), cos(t), 0.0); 
   vec3 moonDir = vec3(-sunDir.x, -sunDir.y, 0.0);
   env.dayFactor = sunDir.y;
 
-  sunDir.yz = mul(rmat2(-degToRad(NL_SUN_PATH_TILT)), sunDir.yz);
-  sunDir.xz = mul(rmat2(degToRad(NL_SUN_PATH_YAW)), sunDir.xz);
+  sunDir.yz = mul(rmat2(-degToRad(DC_SUN_PATH_TILT)), sunDir.yz);
+  sunDir.xz = mul(rmat2(degToRad(DC_SUN_PATH_YAW)), sunDir.xz);
 
-  moonDir.yz = mul(rmat2(-degToRad(NL_MOON_PATH_TILT)), moonDir.yz);
-  moonDir.xz = mul(rmat2(degToRad(NL_MOON_PATH_YAW)), moonDir.xz);
+  moonDir.yz = mul(rmat2(-degToRad(DC_MOON_PATH_TILT)), moonDir.yz);
+  moonDir.xz = mul(rmat2(degToRad(DC_MOON_PATH_YAW)), moonDir.xz);
 
   env.sunDir = sunDir;
   env.moonDir = moonDir;
@@ -75,8 +75,8 @@ nl_environment calculateSunParams(nl_environment env, float TIME_OF_DAY) {
   return env;
 }
 
-nl_environment nlDetectEnvironment(float TIME_OF_DAY, vec3 FOG_COLOR, vec3 FOG_CONTROL) {
-  nl_environment env;
+dc_environment dcDetectEnvironment(float TIME_OF_DAY, vec3 FOG_COLOR, vec3 FOG_CONTROL) {
+  dc_environment env;
   env.end = detectEnd(FOG_COLOR);
   env.nether = detectNether(FOG_COLOR, FOG_CONTROL.xy);
   env.underwater = detectUnderwater(FOG_COLOR, FOG_CONTROL.xy);

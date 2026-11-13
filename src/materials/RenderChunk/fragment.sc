@@ -71,12 +71,12 @@ void main() {
     // ambient light has no block light, the block light gets the newb torch color
     vec3 ambientLight = texture2D(s_LightMapTexture, vec2(0.0, v_lightmapUV.y)).rgb;
     float blockLight = luminance(texture2D(s_LightMapTexture, vec2(v_lightmapUV.x, 0.0)).rgb);
-    vec3 torchColor = nlTorchColor(
+    vec3 torchColor = dcTorchColor(
         detectUnderwater(FogColor.rgb, FogAndDistanceControl.xy),
         detectEnd(FogColor.rgb),
         detectNether(FogColor.rgb, FogAndDistanceControl.xy)
     );
-    diffuse.rgb *= nlAddTorchLight(ambientLight, torchColor, blockLight);
+    diffuse.rgb *= dcAddTorchLight(ambientLight, torchColor, blockLight);
     diffuse.rgb = diffuse.rgb*v_fogMul + v_fogAdd; // fog, worked out in the vertex shader
 
     gl_FragColor = diffuse;

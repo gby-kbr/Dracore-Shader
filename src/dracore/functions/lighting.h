@@ -10,22 +10,22 @@
 #include "detection.h"
 #include "utils.h"
 
-vec3 nlTorchColor(bool underwater, bool end, bool nether) {
+vec3 dcTorchColor(bool underwater, bool end, bool nether) {
   if (underwater) {
-    return NL_UNDERWATER_TORCH_COL;
+    return DC_UNDERWATER_TORCH_COL;
   } else if (end) {
-    return NL_END_TORCH_COL;
+    return DC_END_TORCH_COL;
   } else if (nether) {
-    return NL_NETHER_TORCH_COL;
+    return DC_NETHER_TORCH_COL;
   }
-  return NL_OVERWORLD_TORCH_COL;
+  return DC_OVERWORLD_TORCH_COL;
 }
 
 // ambient: light without any block light
 // blockLight: vanilla block light brightness [0.0, 1.0], the same for torches, lanterns, glowstone, lava, ...
-vec3 nlAddTorchLight(vec3 ambient, vec3 torchColor, float blockLight) {
+vec3 dcAddTorchLight(vec3 ambient, vec3 torchColor, float blockLight) {
   // keep the brightness of the vanilla curve and only replace its color
-  vec3 torchLight = NL_TORCHLIGHT_INTENSITY*blockLight*torchColor/luminance(torchColor);
+  vec3 torchLight = DC_TORCHLIGHT_INTENSITY*blockLight*torchColor/luminance(torchColor);
   float lum = luminance(ambient);
   return ambient + torchLight/(1.0+lum);
 }
