@@ -1,21 +1,11 @@
 #ifndef DC_CONFIG_H
 #define DC_CONFIG_H
 
-// Celestial path settings used by calculateSunParams() in functions/detection.h.
-// Values match newb-x-mcbe defaults.
-
-#ifndef DC_SUN_PATH_YAW
-  #define DC_SUN_PATH_YAW    15.0
-#endif
-#ifndef DC_MOON_PATH_YAW
-  #define DC_MOON_PATH_YAW   17.0
-#endif
-#ifndef DC_SUN_PATH_TILT
-  #define DC_SUN_PATH_TILT   31.0
-#endif
-#ifndef DC_MOON_PATH_TILT
-  #define DC_MOON_PATH_TILT -28.0
-#endif
+/* Sun and moon path, used by calculateSunParams() in functions/detection.h */
+#define DC_SUN_PATH_YAW    15.0
+#define DC_MOON_PATH_YAW   17.0
+#define DC_SUN_PATH_TILT   31.0
+#define DC_MOON_PATH_TILT -28.0
 
 /* Color correction: exposure, Reinhard-Jodie tonemap, gamma */
 #define DC_EXPOSURE 1.3                // 0.5 dark ~ 3.0 bright
