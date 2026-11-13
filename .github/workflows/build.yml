@@ -1,0 +1,26 @@
+name: build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  multiplatform:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+    - uses: actions/cache@v4
+      with:
+        key: env-files-win-laz
+        path: tool/data
+    - run: pip install -r requirements.txt
+    - run: .\build.bat setup
+    - run: .\build.bat check
+    - run: .\build.bat build
+    - uses: actions/upload-artifact@v7
+      with:
+        path: build/*.mcpack
+        archive: false # the plain .mcpack file, not a zip around it
