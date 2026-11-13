@@ -1,0 +1,56 @@
+{
+  "base_profile": {
+    "platforms": [
+      "ESSL_300"
+    ],
+    "merge_source": [
+      "../../tools/materials"
+    ],
+    "include_patterns": [
+      "Actor",
+      "Clouds",
+      "EndSky",
+      "RenderChunk",
+      "Sky",
+      "SunMoon",
+      "Stars",
+      "Weather"
+    ],
+    "exclude_patterns": [
+      ".*",
+      "_*"
+    ],
+    "include_search_paths": [
+      "../../src",
+      "../../include"
+    ]
+  },
+  "profiles": {
+    "android": {
+      "macros": [],
+      "platforms": [
+        "ESSL_300"
+      ]
+    },
+    "ios": {
+      "macros": [],
+      "platforms": [
+        "Metal"
+      ]
+    },
+    "windows": {
+      "macros": [],
+      "platforms": [
+        "Direct3D_SM50"
+      ]
+    },
+    "multiplatform": {
+      "macros": [],
+      "platforms": [
+        "ESSL_300",
+        "Direct3D_SM50",
+        "Metal"
+      ]
+    }
+  }
+}
