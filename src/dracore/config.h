@@ -12,7 +12,7 @@
 #define DC_GAMMA 1.33                  // 0.3 low ~ 2.0 high
 
 /* Sky (Overworld only, no End sky) */
-#define DC_SKY_RAIN_MIX_FACTOR 0.9
+#define DC_SKY_RAIN_MIX_FACTOR 1.0
 
 /* Sky colors - zenith=top, horizon=bottom */
 #define DC_DAWN_ZENITH_COL   vec3(0.1,0.4,0.7)
