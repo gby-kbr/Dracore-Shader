@@ -2,4 +2,4 @@
 # usage: ./build.sh setup | check | build [--no-zip]
 command -v python3 >/dev/null 2>&1 || { echo "Python not found." >&2; exit 1; }
 
-LD_LIBRARY_PATH=./tool/lib python3 tools "$@"
+LD_LIBRARY_PATH=./tools/lib python3 tools "$@"
