@@ -86,7 +86,9 @@ vec4 dcCloudShade(vec3 dir, dc_environment env, dc_skycolor skycol, float soft, 
   vec3 col = amb*(0.75 - 0.35*body) + (sunCol*(1.0 + 1.5*twi) + moonCol)*(lit*(0.55 + 0.35*rim)) + glow*((0.5 + 0.5*rim)*(1.0 - 0.3*body));
   col += sunCol*(pow(max(dot(dir, env.sunDir), 0.0), 6.0)*rim*dens*0.6); // silver lining
 
-  col *= 1.0 + 0.45*day*(1.0 - twi)*(1.0 - rain);
+  // white, a little blue, in the day
+  col = mix(col, vec3_splat(dot(col, vec3(0.33, 0.33, 0.33)))*vec3(1.0, 1.0, 1.06)*3.2, 0.7*day*(1.0 - twi)*(1.0 - rain));
+  col *= 1.0 + 0.9*day*(1.0 - twi)*(1.0 - rain);
 
   // the tonemap whitens bright colors: the dusk clouds stay lower and keep a pink color
   col *= mix(1.0, 0.8, twi*(1.0 - rain));
@@ -108,7 +110,7 @@ vec4 dcCloudShade(vec3 dir, dc_environment env, dc_skycolor skycol, float soft, 
 vec4 dcClouds(sampler2D tex, vec3 dir, dc_environment env, dc_skycolor skycol, float time) {
   vec2 p, uv;
   vec3 base = dcCloudBase(tex, dir, env, time, p, uv);
-  float fiber = texture2D(tex, vec2(p.x*0.12, p.y*1.6) + 0.5).b; // thin fibers along the streak, they make the feathers
+  float fiber = texture2D(tex, vec2(p.x*0.12, p.y*7.0) + 0.5).b; // fine fibers along the streak, like hair
   float d = base.x + (fiber - 0.5)*DC_CLOUD_FIBER;
 
   // how much cloud lies between the point and the sun: the side facing the sun is bright
@@ -116,7 +118,9 @@ vec4 dcClouds(sampler2D tex, vec3 dir, dc_environment env, dc_skycolor skycol, f
   vec2 toSun = vec2(dot(sx, DC_CLOUD_ALONG), dot(sx, DC_CLOUD_ACROSS));
   vec4 m = texture2D(tex, uv + vec2(toSun.x, toSun.y*DC_CLOUD_STRETCH)*(0.012*(0.4 + 0.6*max(env.sunDir.y, 0.0)) + 0.004));
   float dm = m.r*0.45 + m.g*0.55;
-  return dcCloudShade(dir, env, skycol, base.x, dm, d, base.z);
+  vec4 shade = dcCloudShade(dir, env, skycol, base.x, dm, d, base.z);
+  shade.rgb *= 1.0 + (fiber - 0.5)*0.3; // the fibers show inside the cloud too
+  return shade;
 }
 
 // the clouds for the reflection in the water: 2 reads, no fibers and no shading toward the sun

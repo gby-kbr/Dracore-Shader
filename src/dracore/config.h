@@ -58,12 +58,12 @@
 #define DC_WATER_SUN_SIZE     0.0583 // radius of the sun reflection, in radians. Set it to the visible sun disc
 
 /* Clouds, see functions/clouds.h. Soft streaks read from textures/environment/cloud_noise.png */
-#define DC_CLOUD_COVER    0.48 // 0.0 clear ~ 1.0 overcast, how much of the sky the clouds cover
-#define DC_CLOUD_STRETCH  2.0  // 1.0 round ~ 4.0 long streaks, how much the wind pulls the clouds
-#define DC_CLOUD_WARP     0.5  // 0.0 straight ~ 2.0 curly, how much the streaks bend
-#define DC_CLOUD_SOFTNESS 0.26 // 0.1 sharp ~ 0.7 very soft, how wide the soft edge is
-#define DC_CLOUD_FIBER    0.32 // 0.0 smooth ~ 0.4 fine, thin fibers at the edge
-#define DC_CLOUD_OPACITY  0.7 // 0.2 thin ~ 1.0 solid, how much the clouds hide the sky
+#define DC_CLOUD_COVER    0.6 // 0.0 clear ~ 1.0 overcast, how much of the sky the clouds cover
+#define DC_CLOUD_STRETCH  2.6  // 1.0 round ~ 4.0 long streaks, how much the wind pulls the clouds
+#define DC_CLOUD_WARP     0.8  // 0.0 straight ~ 2.0 curly, how much the streaks bend
+#define DC_CLOUD_SOFTNESS 0.55 // 0.1 sharp ~ 0.7 very soft, how wide the soft edge is
+#define DC_CLOUD_FIBER    0.3 // 0.0 smooth ~ 0.5 fine, how much the fine fibers break the edge
+#define DC_CLOUD_OPACITY  0.95 // 0.2 thin ~ 1.0 solid, how much the clouds hide the sky
 #define DC_CLOUD_WIND     0.5  // 0.0 still ~ 2.0 fast, how fast the clouds drift
 
 #endif
