@@ -2,8 +2,10 @@
 // see licenses/newb-x-mcbe-MIT.txt): the vanilla water is detected in the vertex shader, its color,
 // opacity and sky reflection are worked out per vertex, and the fragment shader only replaces the
 // water texture by a plain color and adds the reflection.
-// Differences from newb: the waves are two long sine waves with an exact slope instead of noise,
+// Differences from newb: the waves are three sine waves with an exact slope instead of noise,
 // there is no cloud or torch reflection, and everything is one cheap evaluation per vertex.
+// The opacity and the clear look follow Bedroalism-Shader: the longer the path through the water, the more it
+// hides what is behind it. The surface seen from below uses the same formula, so it is as clear as from above.
 
 #ifndef WATER_H
 #define WATER_H
@@ -51,9 +53,25 @@ void dcWaterLight(dc_environment env, float skyLight, out vec3 lightDir, out vec
   lightCol = (useSun ? sunCol : moonCol)*(1.0 - 0.8*env.rainFactor)*smoothstep(0.35, 0.9, skyLight); // none in rain, shade or caves
 }
 
+// light level of the water body: the lightmap makes the lit water body, this is for the haze under water
+// that is added after the lighting
+float dcWaterLightLevel(dc_environment env) {
+  return mix(0.2, 1.0, smoothstep(-0.12, 0.12, env.dayFactor));
+}
+
+// color of the light that the water scatters back to the eye. skyLight: 0.0 ~ 1.0, water in a cave stays dark
+vec3 dcWaterScatterColor(dc_environment env, float skyLight) {
+  return DC_WATER_COLOR*(dcWaterLightLevel(env)*(0.12 + 0.88*skyLight*skyLight));
+}
+
 // color: the vertex color of the water, replaced here. wPos: lowered a little by the waves
 // viewDir: normalized, camera to surface. camPos: absolute camera position. skyLight: 0.0 ~ 1.0
-// returns 1.0 in alpha as the water flag (rgb is 0.0, the sky is not reflected)
+// The result on screen is reflection*F + body*(1 - F)*(1 - T) + behind*(1 - F)*T, with F the fresnel and T the
+// share of the light that goes through the water. As alpha = 1 - (1 - F)*T, the blending of the game gives
+// exactly that when color.rgb = body*(1 - F)*(1 - T)/alpha and the reflection is divided by alpha too.
+// returns the sky reflection multiplied by the fresnel in rgb (the fragment divides it by alpha), and 1.0 in
+// alpha as the water flag. Seen from below there is no reflection: the sky, the sun and the moon behind the
+// surface show through it, as clear as from above.
 // glint: the reflected direction (xyz) and the fresnel (w), for the sun and moon reflection per pixel
 // lightDir, lightCol: the light that glitters, see dcWaterLight()
 vec4 dcWater(inout vec4 color, inout vec3 wPos, dc_skycolor skycol, dc_environment env, vec3 viewDir, vec3 camPos, float skyLight, float camDist, highp float t, out vec4 glint, out vec3 lightDir, out vec3 lightCol) {
@@ -67,27 +85,34 @@ vec4 dcWater(inout vec4 color, inout vec3 wPos, dc_skycolor skycol, dc_environme
   // the waves lower the surface a little, only close to the camera
   wPos.y -= DC_WATER_WAVE*(0.5 + 0.5*h)*(1.0 - clamp((camDist - 8.0)*0.125, 0.0, 1.0));
 
-  if (env.underwater) {
-    // from below the water is a plain color, no reflection
-    color.rgb = DC_WATER_COLOR;
-    color.a = DC_WATER_OPACITY;
+  bool below = env.underwater && viewDir.y > 0.0; // the surface seen from under the water
+  float bump = below ? 0.5*DC_WATER_BUMP : DC_WATER_BUMP; // calmer waves from below
+  vec3 nrm = normalize(vec3(-slope.x*bump, 1.0, -slope.y*bump));
+  float cosV = clamp(below ? dot(viewDir, nrm) : dot(-viewDir, nrm), 0.0, 1.0);
+
+  float fresnel = dcFresnel(cosV, DC_WATER_REFLECTIVITY);
+  float hide = -log(1.0 - clamp(DC_WATER_OPACITY, 0.01, 0.95));
+  float transmit = exp(-hide/max(cosV, 0.12)); // a long path through the water hides what is behind
+  float alpha = 1.0 - (1.0 - fresnel)*transmit;
+  color.rgb = DC_WATER_COLOR*(((1.0 - fresnel)*(1.0 - transmit))/alpha);
+  color.a = alpha;
+
+  if (below) {
     return vec4(0.0, 0.0, 0.0, 1.0);
   }
 
-  vec3 nrm = normalize(vec3(-slope.x*DC_WATER_BUMP, 1.0, -slope.y*DC_WATER_BUMP));
-  float cosR = max(dot(-viewDir, nrm), 0.0);
-  vec3 reflDir = viewDir + 2.0*cosR*nrm; // reflect(viewDir, nrm)
+  // the reflected ray that would go below the horizon is held at the horizon
+  vec3 reflDir = viewDir + 2.0*cosV*nrm; // reflect(viewDir, nrm)
+  vec3 skyDir = normalize(vec3(reflDir.x, max(reflDir.y, 0.0), reflDir.z));
 
-  float fresnel = dcFresnel(cosR, DC_WATER_REFLECTIVITY);
-  float opacity = 1.0 - cosR;
+  // the chunks have no tonemap of their own, the sky has, so it is applied here
+  vec3 refl = colorCorrection(dcRenderSky(skycol, skyDir));
+  refl *= 0.05 + 0.95*skyLight*skyLight; // no sky reflection in the shade and in caves
 
   glint = vec4(reflDir, fresnel);
   dcWaterLight(env, skyLight, lightDir, lightCol);
 
-  color.rgb = DC_WATER_COLOR*(1.0 - 0.8*fresnel);
-  color.a = mix(DC_WATER_OPACITY, 1.0, opacity*opacity); // clearer from above, more solid at a low angle
-
-  return vec4(0.0, 0.0, 0.0, 1.0); // only the sun and moon are reflected, the sky is not
+  return vec4(refl*fresnel, 1.0);
 }
 
 #endif

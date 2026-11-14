@@ -10,6 +10,7 @@
 #include "detection.h"
 #include "sky.h"
 #include "tonemap.h"
+#include "water.h"
 
 #define DC_SEA_LEVEL 63.0
 
@@ -40,11 +41,19 @@ float dcGroundMist(float camY, float dirY, float dist, vec2 midXZ, float t, floa
 
 // relPos: camera to surface. camPos: absolute camera position. skyLight: 0.0 ~ 1.0, caves get no sky fog
 // vanillaFogColor, vanillaFog: the game's fog, it still hides the edge of the render distance
-// The Nether, the End and underwater keep the vanilla fog.
+// The Nether and the End keep the vanilla fog, under water there is a clear haze.
 void dcFogTerms(vec3 relPos, vec3 camPos, float skyLight, float t, dc_environment env, dc_skycolor skycol, vec3 vanillaFogColor, float vanillaFog, out vec3 fogMul, out vec3 fogAdd) {
-  if (env.end || env.nether || env.underwater) {
+  if (env.end || env.nether) {
     fogMul = vec3_splat(1.0 - vanillaFog);
     fogAdd = vanillaFogColor*vanillaFog;
+    return;
+  }
+  if (env.underwater) {
+    // clear water haze instead of the thick vanilla fog. The light that comes from a surface at distance d keeps
+    // exp(-density*d) of its color, the rest is the light that the water scatters on the way
+    float keep = exp(-DC_UNDERWATER_DENSITY*length(relPos));
+    fogMul = vec3_splat(keep);
+    fogAdd = dcWaterScatterColor(env, skyLight)*(1.0 - keep);
     return;
   }
   float dist = length(relPos);

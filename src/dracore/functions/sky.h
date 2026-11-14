@@ -2,6 +2,7 @@
 // (MIT License, Copyright (c) 2024 devendrn, see licenses/newb-x-mcbe-MIT.txt).
 // The gradient in dcRenderSky() and the smooth day/night change come from Bedroalism-Shader.
 // Overworld only. No End sky, no horizon edge, no rainbow, no sun glow.
+// The sky is the same under water, the sky, sun and moon show through the water surface from below.
 
 #ifndef SKY_H
 #define SKY_H
@@ -38,13 +39,6 @@ dc_skycolor dcOverworldSkyColors(dc_environment env) {
   s.dawnHorizon = DC_DAWN_HORIZON_COL;
   s.dawn = dawnFactor*(1.0 - rainMix);
   s.sunDir = env.sunDir;
-
-  if (env.underwater) {
-    s.dawn = 0.0;
-    vec3 underwaterFog = env.fogCol*env.fogCol*DC_UNDERWATER_TINT;
-    s.zenith = mix(2.0*underwaterFog, underwaterFog*zh, 0.8);
-    s.horizon = mix(2.0*underwaterFog, underwaterFog*hh, 0.8);
-  }
 
   return s;
 }

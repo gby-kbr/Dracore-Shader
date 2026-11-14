@@ -82,8 +82,9 @@ void main() {
 
 #if defined(TRANSPARENT)
     if (a_color0.a < 0.95) {
-        float baseAlpha = refl.a > 0.5 ? color.a : a_color0.a; // water has its own opacity
-        color.a = mix(baseAlpha, 1.0, clamp(camDist / FogAndDistanceControl.w, 0.0, 1.0));
+        if (refl.a < 0.5) { // water has its own opacity, it is not faded: the reflection is divided by it
+            color.a = mix(a_color0.a, 1.0, clamp(camDist / FogAndDistanceControl.w, 0.0, 1.0));
+        }
     }
 #endif
 

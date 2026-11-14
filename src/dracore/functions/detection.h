@@ -81,6 +81,9 @@ dc_environment dcDetectEnvironment(float TIME_OF_DAY, vec3 FOG_COLOR, vec3 FOG_C
   env.nether = detectNether(FOG_COLOR, FOG_CONTROL.xy);
   env.underwater = detectUnderwater(FOG_COLOR, FOG_CONTROL.xy);
   env.rainFactor = detectRain(FOG_CONTROL.xyz);
+  if (env.underwater || env.nether) {
+    env.rainFactor = 0.0; // the fog control reads like full rain there
+  }
   env.fogCol = FOG_COLOR;
   env = calculateSunParams(env, TIME_OF_DAY);
   return env;

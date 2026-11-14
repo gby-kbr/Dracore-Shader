@@ -88,15 +88,17 @@ void main() {
     );
     diffuse.rgb *= dcAddTorchLight(ambientLight, torchColor, blockLight);
 #if defined(TRANSPARENT)
-    diffuse.rgb += v_refl.rgb; // water: sky reflection, after the lighting
     if (isWater) {
-        // reflection of the sun or moon disc. The distance between the two unit vectors is their angle, and
-        // unlike a dot product close to 1.0 it stays precise at low float precision
+        // the reflection and the glint of the sun or moon disc are added to the water, then blended with its alpha,
+        // so they are divided by it to reach the eye in full. The distance between the two unit vectors is their angle,
+        // and unlike a dot product close to 1.0 it stays precise at low float precision
+        vec3 shine = v_refl.rgb;
         float angle = length(normalize(v_glint.xyz) - v_lightDir);
         float disc = 1.0 - smoothstep(0.767*DC_WATER_SUN_SIZE, DC_WATER_SUN_SIZE, angle);
         if (disc > 0.0) {
-            diffuse.rgb += colorCorrection(v_lightCol*(DC_WATER_SUN_GLITTER*disc*v_glint.w));
+            shine += colorCorrection(v_lightCol*(DC_WATER_SUN_GLITTER*disc*v_glint.w));
         }
+        diffuse.rgb += shine/max(diffuse.a, 0.05);
     }
 #endif
     diffuse.rgb = diffuse.rgb*v_fog.a + v_fog.rgb; // fog, worked out in the vertex shader

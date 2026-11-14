@@ -25,7 +25,7 @@
 #define DC_RAIN_HORIZON_COL  vec3(0.6,0.6,0.6)
 
 /* Underwater */
-#define DC_UNDERWATER_TINT vec3(0.9,1.0,0.9) // fog tint color when underwater
+#define DC_UNDERWATER_DENSITY 0.04 // 0.02 very clear ~ 0.12 hazy, light lost per block under water
 
 /* Torch (block light) colors */
 #define DC_TORCHLIGHT_INTENSITY 1.0  // 0.5 weak ~ 3.0 bright
@@ -44,11 +44,11 @@
 
 /* Water */
 #define DC_WATER_COLOR        vec3(0.15,0.42,0.44) // color of the water body in daylight, teal green
-#define DC_WATER_OPACITY      0.45  // 0.0 clear ~ 1.0 solid, looking straight down
-#define DC_WATER_REFLECTIVITY 0.04  // 0.02 realistic ~ 0.1 mirror like, reflection at a steep angle
+#define DC_WATER_OPACITY      0.25  // 0.0 clear ~ 1.0 solid, looking straight down. Same from above and from below
+#define DC_WATER_REFLECTIVITY 0.02  // 0.02 realistic ~ 0.1 mirror like, reflection at a steep angle
 #define DC_WATER_TEX_OPACITY  0.0   // 0.0 plain water ~ 1.0 vanilla water texture
 #define DC_WATER_WAVE_SPEED   0.8   // 0.2 calm ~ 2.0 turbulent
-#define DC_WATER_BUMP         0.12  // 0.0 flat ~ 0.2 bumpy, how much the waves tilt the sun reflection
+#define DC_WATER_BUMP         0.12  // 0.0 flat ~ 0.2 bumpy, how much the waves tilt the reflection
 #define DC_WATER_WAVE         0.05  // 0.0 flat ~ 0.15, how far the waves lower the surface, in blocks
 #define DC_WATER_SUN_GLITTER  1.0   // 0.0 none ~ 2.0 strong, reflection of the sun and the moon
 #define DC_WATER_SUN_SIZE     0.0583 // radius of the sun reflection, in radians. Set it to the visible sun disc

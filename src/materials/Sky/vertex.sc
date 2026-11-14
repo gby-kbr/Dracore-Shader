@@ -15,8 +15,9 @@
 
 void main() {
   #ifndef INSTANCING
-    v_underwaterRainTimeDay.x = float(detectUnderwater(FogColor.rgb, FogAndDistanceControl.xy));
-    v_underwaterRainTimeDay.y = detectRain(FogAndDistanceControl.xyz);
+    bool underwater = detectUnderwater(FogColor.rgb, FogAndDistanceControl.xy);
+    v_underwaterRainTimeDay.x = float(underwater);
+    v_underwaterRainTimeDay.y = underwater ? 0.0 : detectRain(FogAndDistanceControl.xyz); // the fog control reads like rain under water
     v_underwaterRainTimeDay.z = ViewPositionAndTime.w;
     v_underwaterRainTimeDay.w = detectDayFactor(FogColor.rgb);
 
