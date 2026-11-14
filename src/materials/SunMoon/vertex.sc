@@ -1,5 +1,5 @@
 $input a_color0, a_position, a_texcoord0
-$output v_texcoord0, v_worldPos, v_time
+$output v_texcoord0
 
 #include <bgfx_shader.sh>
 
@@ -7,15 +7,12 @@ $output v_texcoord0, v_worldPos, v_time
   #include <dracore/main.sh>
 
   uniform vec4 TimeOfDay;
-  uniform vec4 ViewPositionAndTime;
 #endif
 
 // The sun and the moon are placed here, as in newb-x-mcbe (MIT), so they sit on the same tilted path as the sun and
-// moon direction of calculateSunParams: the water reflection and the clouds use that direction.
+// moon direction of calculateSunParams: the water reflection uses that direction.
 void main() {
   v_texcoord0 = a_texcoord0;
-  v_worldPos = vec3(0.0, 0.0, 0.0);
-  v_time = vec4(0.0, 0.0, 0.0, 0.0);
   #ifndef INSTANCING
     vec3 pos = a_position;
     pos.x = -pos.x;
@@ -49,8 +46,6 @@ void main() {
     wpos.yz = mul(rmat2(tilt), wpos.yz);
     wpos.xz = mul(rmat2(yaw), wpos.xz);
 
-    v_worldPos = wpos.xyz;
-    v_time = vec4(ViewPositionAndTime.w, 0.0, 0.0, 0.0);
     gl_Position = mul(u_viewProj, wpos);
   #else
     gl_Position = vec4(0.0, 0.0, 0.0, 0.0);
