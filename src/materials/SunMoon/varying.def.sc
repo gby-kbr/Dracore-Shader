@@ -7,3 +7,5 @@ vec4 i_data2 : TEXCOORD6;
 vec4 i_data3 : TEXCOORD5;
 
 vec2 v_texcoord0 : TEXCOORD0;
+vec3 v_worldPos  : TEXCOORD3;
+vec4 v_time      : TEXCOORD1;

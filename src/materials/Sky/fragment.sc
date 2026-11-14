@@ -10,6 +10,8 @@
   uniform vec4 TimeOfDay;
   uniform vec4 FogColor;
   uniform vec4 FogAndDistanceControl;
+
+  SAMPLER2D_AUTOREG(s_DcCloudNoise);
 #endif
 
 void main() {
@@ -28,6 +30,10 @@ void main() {
     dc_skycolor skycol = dcOverworldSkyColors(env);
 
     vec3 skyColor = dcRenderSky(skycol, viewDir);
+
+    // the clouds, also seen from under the water: the sky is the same there
+    vec4 clouds = dcClouds(s_DcCloudNoise, viewDir, env, skycol, v_underwaterRainTimeDay.z);
+    skyColor = mix(skyColor, clouds.rgb, clouds.a);
 
     skyColor = colorCorrection(skyColor);
 
