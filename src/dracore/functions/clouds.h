@@ -74,6 +74,7 @@ vec4 dcCloudShade(vec3 dir, dc_environment env, dc_skycolor skycol, float soft, 
   vec3 hl = skycol.horizon*skyAmt + moonCol*0.2;
   vec3 grey = vec3_splat(dot(mix(zl, hl, 0.5), vec3(0.33, 0.33, 0.33))*1.15);
   vec3 amb = grey + (zl - grey)*0.3 + (hl - grey)*0.9;
+  amb = mix(amb, vec3_splat(dot(amb, vec3(0.33, 0.33, 0.33))*1.35), day*0.55*(1.0 - twi)*(1.0 - rain)); // white in the day
   amb += skycol.dawnHorizon*(0.12*twi*(1.0 - rain));
   amb = mix(amb, vec3_splat(dot(amb, vec3(0.33, 0.33, 0.33)))*0.75, rain*0.8);
 
@@ -84,6 +85,8 @@ vec4 dcCloudShade(vec3 dir, dc_environment env, dc_skycolor skycol, float soft, 
 
   vec3 col = amb*(0.75 - 0.35*body) + (sunCol*(1.0 + 1.5*twi) + moonCol)*(lit*(0.55 + 0.35*rim)) + glow*((0.5 + 0.5*rim)*(1.0 - 0.3*body));
   col += sunCol*(pow(max(dot(dir, env.sunDir), 0.0), 6.0)*rim*dens*0.6); // silver lining
+
+  col *= 1.0 + 0.45*day*(1.0 - twi)*(1.0 - rain);
 
   // the tonemap whitens bright colors: the dusk clouds stay lower and keep a pink color
   col *= mix(1.0, 0.8, twi*(1.0 - rain));
@@ -105,7 +108,7 @@ vec4 dcCloudShade(vec3 dir, dc_environment env, dc_skycolor skycol, float soft, 
 vec4 dcClouds(sampler2D tex, vec3 dir, dc_environment env, dc_skycolor skycol, float time) {
   vec2 p, uv;
   vec3 base = dcCloudBase(tex, dir, env, time, p, uv);
-  float fiber = texture2D(tex, vec2(p.x*0.3, p.y*0.3*DC_CLOUD_STRETCH*1.5) + 0.5).b;
+  float fiber = texture2D(tex, vec2(p.x*0.10, p.y*1.2) + 0.5).b; // long thin fibers along the streak
   float d = base.x + (fiber - 0.5)*DC_CLOUD_FIBER;
 
   // how much cloud lies between the point and the sun: the side facing the sun is bright
