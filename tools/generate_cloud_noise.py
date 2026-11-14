@@ -72,14 +72,16 @@ def sparse(seed_noise, power):
     return np.exp(power*seed_noise)
 
 
-fine = lic(sparse(rng.standard_normal((N, N)).astype(np.float32), 0.8), 30)
-medium_src = band_noise(30, 260, 0.2)
-medium = lic(sparse(medium_src, 0.7), 64)
-large = lic(band_noise(4, 40, 1.0), 120)
+fine = lic(sparse(rng.standard_normal((N, N)).astype(np.float32), 0.5), 34)
+medium_src = band_noise(12, 90, 0.4)
+medium = lic(sparse(medium_src, 0.45), 70)
+large = lic(band_noise(3, 22, 1.0), 140)
 # a little of the medium streaks make the swooshes fibrous too
 large = large + 0.25*(medium - medium.mean())/medium.std()*large.std()
 
-fine = gaussian_filter(fine, 0.8, mode="wrap")  # no single-pixel bristles, they flicker when the sky moves
+fine = gaussian_filter(fine, 1.6, mode="wrap")  # no single-pixel bristles, they flicker when the sky moves
+medium = gaussian_filter(medium, 1.0, mode="wrap")
+large = gaussian_filter(large, 1.2, mode="wrap")
 out = np.stack([equalize(fine), equalize(medium), equalize(large)], axis=-1)
 os.makedirs(os.path.dirname(OUTPUT), exist_ok=True)
 Image.fromarray((out*255 + 0.5).astype(np.uint8), "RGB").save(OUTPUT, optimize=True)
