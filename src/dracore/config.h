@@ -6,6 +6,10 @@
 #define DC_MOON_PATH_YAW   17.0
 #define DC_SUN_PATH_TILT   31.0
 #define DC_MOON_PATH_TILT -28.0
+#define DC_SUN_SIZE        1.0  // 0.3 tiny ~ 4.0 massive
+#define DC_MOON_SIZE       1.0  // 0.3 tiny ~ 4.0 massive
+#define DC_SUN_TILT        45.0 // 0.0 no tilt ~ 90.0, how much the sun picture is turned
+#define DC_MOON_TILT       45.0
 
 /* Color correction: exposure, Reinhard-Jodie tonemap, gamma */
 #define DC_EXPOSURE 1.3                // 0.5 dark ~ 3.0 bright
@@ -52,5 +56,14 @@
 #define DC_WATER_WAVE         0.04  // 0.0 flat ~ 0.15, how far the waves lower the surface, in blocks
 #define DC_WATER_SUN_GLITTER  1.0   // 0.0 none ~ 2.0 strong, reflection of the sun and the moon
 #define DC_WATER_SUN_SIZE     0.0583 // radius of the sun reflection, in radians. Set it to the visible sun disc
+
+/* Clouds, see functions/clouds.h. Soft streaks read from textures/environment/cloud_noise.png */
+#define DC_CLOUD_COVER    0.62 // 0.0 clear ~ 1.0 overcast, how much of the sky the clouds cover
+#define DC_CLOUD_STRETCH  1.4  // 1.0 round ~ 4.0 long streaks, how much the wind pulls the clouds
+#define DC_CLOUD_WARP     0.7  // 0.0 straight ~ 2.0 curly, how much the streaks bend
+#define DC_CLOUD_SOFTNESS 0.5  // 0.1 sharp ~ 0.7 very soft, how wide the soft edge is
+#define DC_CLOUD_FIBER    0.1  // 0.0 smooth ~ 0.4 fine, thin fibers at the edge
+#define DC_CLOUD_OPACITY  0.85 // 0.2 thin ~ 1.0 solid, how much the clouds hide the sky
+#define DC_CLOUD_WIND     0.5  // 0.0 still ~ 2.0 fast, how fast the clouds drift
 
 #endif

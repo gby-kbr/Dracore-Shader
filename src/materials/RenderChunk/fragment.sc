@@ -9,9 +9,11 @@ uniform vec4 FogAndDistanceControl;
 uniform vec4 DitherParams;
 uniform vec4 DitherParams2[3];
 uniform vec4 ViewPositionAndTime;
+uniform vec4 TimeOfDay;
 
 SAMPLER2D_AUTOREG(s_MatTexture);
 SAMPLER2D_AUTOREG(s_LightMapTexture);
+SAMPLER2D_AUTOREG(s_DcCloudNoise);
 #if defined(SEASONS)
 SAMPLER2D_AUTOREG(s_SeasonsTexture);
 #endif
@@ -93,10 +95,22 @@ void main() {
         // so they are divided by it to reach the eye in full. The distance between the two unit vectors is their angle,
         // and unlike a dot product close to 1.0 it stays precise at low float precision
         vec3 shine = v_refl.rgb;
+        float hidden = 0.0;
+        if (v_glint.w > 0.0) {
+            // seen from above the surface also reflects the clouds (2 texture reads): they cover the sky reflection
+            // and the glint. The reflected direction is held at the horizon like the sky reflection of the vertex
+            dc_environment env = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+            dc_skycolor skycol = dcSkyColors(env);
+            vec3 reflDir = normalize(vec3(v_glint.x, max(v_glint.y, 0.0), v_glint.z));
+            vec4 clouds = dcCloudsLite(s_DcCloudNoise, reflDir, env, skycol, ViewPositionAndTime.w);
+            float openSky = 0.05 + 0.95*v_lightmapUV.y*v_lightmapUV.y; // no reflection in the shade and in caves
+            shine = mix(shine, colorCorrection(clouds.rgb)*(v_glint.w*openSky), clouds.a);
+            hidden = clouds.a;
+        }
         float angle = length(normalize(v_glint.xyz) - v_lightDir);
         float disc = 1.0 - smoothstep(0.767*DC_WATER_SUN_SIZE, DC_WATER_SUN_SIZE, angle);
         if (disc > 0.0) {
-            shine += colorCorrection(v_lightCol*(DC_WATER_SUN_GLITTER*disc*v_glint.w));
+            shine += colorCorrection(v_lightCol*(DC_WATER_SUN_GLITTER*disc*v_glint.w*(1.0 - hidden)));
         }
         diffuse.rgb += shine/max(diffuse.a, 0.05);
     }

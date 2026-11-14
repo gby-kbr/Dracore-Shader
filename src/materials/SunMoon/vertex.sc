@@ -1,23 +1,58 @@
 $input a_color0, a_position, a_texcoord0
-#ifdef INSTANCING
-    $input i_data1, i_data2, i_data3
-#endif
-
-$output v_color0, v_texcoord0, v_worldPos
+$output v_texcoord0, v_worldPos, v_time
 
 #include <bgfx_shader.sh>
 
-void main() {
-    vec3 worldPosition;
-#ifdef INSTANCING
-    mat4 model = mtxFromCols(i_data1, i_data2, i_data3, vec4(0.0, 0.0, 0.0, 1.0));
-    worldPosition = instMul(model, vec4(a_position, 1.0)).xyz;
-#else
-    worldPosition = mul(u_model[0], vec4(a_position, 1.0)).xyz;
+#ifndef INSTANCING
+  #include <dracore/main.sh>
+
+  uniform vec4 TimeOfDay;
+  uniform vec4 ViewPositionAndTime;
 #endif
 
-    v_color0 = a_color0;
-    v_texcoord0 = a_texcoord0;
-    v_worldPos = worldPosition;
-    gl_Position = mul(u_viewProj, vec4(worldPosition, 1.0));
+// The sun and the moon are placed here, as in newb-x-mcbe (MIT), so they sit on the same tilted path as the sun and
+// moon direction of calculateSunParams: the water reflection and the clouds use that direction.
+void main() {
+  v_texcoord0 = a_texcoord0;
+  v_worldPos = vec3(0.0, 0.0, 0.0);
+  v_time = vec4(0.0, 0.0, 0.0, 0.0);
+  #ifndef INSTANCING
+    vec3 pos = a_position;
+    pos.x = -pos.x;
+
+    // the sun and the moon are two draws of the same quad, told apart by where the game puts them
+    vec2 dir = mul(u_model[0], vec4(0.0, 0.0, 0.0, 1.0)).xy;
+    float st = 2.0*PI*TimeOfDay.x + 0.5*PI;
+    bool isSun = dot(vec2(cos(st), sin(st)), dir) > 0.0;
+
+    float dist = 300.0;
+    float angle = 0.0;
+    float tilt = 0.0;
+    float yaw = 0.0;
+    if (isSun) {
+      dist = -dist;
+      pos.x = -pos.x;
+      pos.xz *= DC_SUN_SIZE;
+      angle = degToRad(DC_SUN_TILT);
+      tilt = degToRad(DC_SUN_PATH_TILT);
+      yaw = degToRad(DC_SUN_PATH_YAW);
+    } else {
+      pos.xz *= DC_MOON_SIZE;
+      angle = degToRad(DC_MOON_TILT);
+      tilt = degToRad(DC_MOON_PATH_TILT);
+      yaw = degToRad(DC_MOON_PATH_YAW);
+    }
+    pos.xz = mul(rmat2(angle + 0.5*st), pos.xz);
+
+    vec4 wpos = vec4(dist, 70.0*pos.xz, 1.0);
+    wpos.xy = mul(rmat2(st), -wpos.xy);
+    wpos.yz = mul(rmat2(tilt), wpos.yz);
+    wpos.xz = mul(rmat2(yaw), wpos.xz);
+
+    v_worldPos = wpos.xyz;
+    v_time = vec4(ViewPositionAndTime.w, 0.0, 0.0, 0.0);
+    gl_Position = mul(u_viewProj, wpos);
+  #else
+    gl_Position = vec4(0.0, 0.0, 0.0, 0.0);
+  #endif
 }

@@ -90,7 +90,7 @@ vec4 dcWater(inout vec4 color, inout vec3 wPos, dc_skycolor skycol, dc_environme
   vec3 nrm = normalize(vec3(-slope.x*bump, 1.0, -slope.y*bump));
   float cosV = clamp(below ? dot(viewDir, nrm) : dot(-viewDir, nrm), 0.0, 1.0);
 
-  float fresnel = dcFresnel(cosV, DC_WATER_REFLECTIVITY);
+  float fresnel = below ? 0.0 : dcFresnel(cosV, DC_WATER_REFLECTIVITY); // from below the surface only lets the sky through, it does not go black at a low angle
   float hide = -log(1.0 - clamp(DC_WATER_OPACITY, 0.01, 0.95));
   float transmit = exp(-hide/max(cosV, 0.12)); // a long path through the water hides what is behind
   float alpha = 1.0 - (1.0 - fresnel)*transmit;

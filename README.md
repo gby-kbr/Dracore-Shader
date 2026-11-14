@@ -5,7 +5,8 @@ Render Dragon shaders for Bedrock that are balanced and lightweight for users
 - Sky colors with a smooth gradient from horizon to zenith, dawn color only around the sun
 - Newb torch color for all light-emitting blocks
 - Lightweight height fog with a low ground mist
-- Realistic, calm water that replaces the vanilla water, with sun and moon reflection
+- Realistic, calm water that replaces the vanilla water, clear from above and from below, with sky, cloud, sun and moon reflection
+- Soft streak clouds from a noise texture (4 texture reads in the sky), also seen from under the water and hiding the sun and moon
 - Reinhard-Jodie color correction with exposure and gamma
 
 All settings are in `src/dracore/config.h`.
@@ -17,10 +18,11 @@ All settings are in `src/dracore/config.h`.
 ├── requirements.txt
 ├── include/               # shared Render Dragon headers
 ├── licenses/              # licenses of the code this project builds on
+├── mcpack/                # resource pack files, including textures/environment/cloud_noise.png
 ├── src/
 │   ├── dracore/           # shader functions and config (include with <dracore/main.sh>)
 │   └── materials/         # one folder per material, project.json = compiler config
-└── tools/build.py         # build tool
+└── tools/                 # build tool, and generate_cloud_noise.py (writes the cloud noise texture)
 ```
 
 ## Building
