@@ -108,7 +108,7 @@ vec4 dcCloudShade(vec3 dir, dc_environment env, dc_skycolor skycol, float soft, 
 vec4 dcClouds(sampler2D tex, vec3 dir, dc_environment env, dc_skycolor skycol, float time) {
   vec2 p, uv;
   vec3 base = dcCloudBase(tex, dir, env, time, p, uv);
-  float fiber = texture2D(tex, vec2(p.x*0.10, p.y*1.2) + 0.5).b; // long thin fibers along the streak
+  float fiber = texture2D(tex, vec2(p.x*0.12, p.y*1.6) + 0.5).b; // thin fibers along the streak, they make the feathers
   float d = base.x + (fiber - 0.5)*DC_CLOUD_FIBER;
 
   // how much cloud lies between the point and the sun: the side facing the sun is bright
