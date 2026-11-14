@@ -6,7 +6,7 @@ Render Dragon shaders for Bedrock that are balanced and lightweight for users
 - Newb torch color for all light-emitting blocks
 - Lightweight height fog with a low ground mist
 - Realistic, calm water that replaces the vanilla water, clear from above and from below, with sky, cloud, sun and moon reflection
-- Cirrus fibratus clouds: long curved hair-like fibers from one noise texture (1 texture read in the sky), also seen from under the water, in the water reflection and hiding the sun and moon
+- Soft cirrus clouds: long smooth curved sweeps from one noise texture (1 texture read in the sky), also seen from under the water, in the water reflection and hiding the sun and moon
 - Reinhard-Jodie color correction with exposure and gamma
 
 All settings are in `src/dracore/config.h`.
@@ -22,7 +22,7 @@ All settings are in `src/dracore/config.h`.
 ├── src/
 │   ├── dracore/           # shader functions and config (include with <dracore/main.sh>)
 │   └── materials/         # one folder per material, project.json = compiler config
-└── tools/                 # build tool, and generate_cloud_noise.py (draws the curved fibers of the cloud noise texture)
+└── tools/                 # build tool, and generate_cloud_noise.py (draws the curved sweeps of the cloud noise texture)
 ```
 
 ## Building

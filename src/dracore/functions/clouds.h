@@ -5,30 +5,28 @@
 
 // ---------------------------------------------------------------------------------------------
 // Clouds: one layer of cirrus fibratus, read from textures/environment/cloud_noise.png (made by
-// tools/generate_cloud_noise.py). The texture is not plain noise: its fibers are drawn along one curved flow, so
-// they already bend, taper and split. The shader only has to place the texture on the sky and cut it with a threshold.
-//   R fine fibers, G medium streaks, B large swooshes. All three follow the same flow, so one read gives all of them.
-// Per sky pixel that is 1 texture read and no loop. The water reflection and the sun and moon read it too.
+// tools/generate_cloud_noise.py). The texture holds soft swooshes drawn along one curved flow, so the clouds already
+// sweep in long smooth curves. The shader only places the texture on the sky and cuts it with a soft threshold.
+// There are no fibers or streaks, everything is soft. Per sky pixel that is 1 texture read and no loop. The water reflection and the sun and moon read it too.
 // ---------------------------------------------------------------------------------------------
 
 // a read of the clouds without the light. n: the texture, x: how thick the cloud is, y: where its edge is
-vec2 dcCloudBase(sampler2D tex, vec3 dir, dc_environment env, float time, out vec3 n) {
+vec2 dcCloudBase(sampler2D tex, vec3 dir, dc_environment env, float time, out float n) {
   // no early return below the horizon: a texture read in a branch that changes inside one screen quad gives a line
   // there. The clouds fade out to nothing at the horizon anyway
   float up = max(dir.y, 0.0);
   float lift = 1.0/(up*0.6 + 0.45); // the layer is far away at the horizon
   vec2 p = dir.xz*lift*DC_CLOUD_SIZE;
   p.x += time*DC_CLOUD_WIND*0.004;
-  n = texture2D(tex, p).rgb;
-  // the swooshes make the shape, the streaks and the fibers cut it into hairs
-  float thick = n.b + (n.g - 0.5)*DC_CLOUD_STREAK + (n.r - 0.5)*DC_CLOUD_FIBER;
+  n = texture2D(tex, p).r;
+  float thick = n;
   float edge = 1.0 - clamp(DC_CLOUD_COVER + 0.3*env.rainFactor, 0.0, 1.0);
   return vec2(thick, edge);
 }
 
 // how much clouds hide the sky in a direction: the sun and the moon are behind them
 float dcCloudCover(sampler2D tex, vec3 dir, dc_environment env, float time) {
-  vec3 n;
+  float n;
   vec2 base = dcCloudBase(tex, dir, env, time, n);
   float dens = smoothstep(base.y, base.y + DC_CLOUD_SOFTNESS, base.x);
   return dens*DC_CLOUD_OPACITY*smoothstep(0.0, 0.16, max(dir.y, 0.0));
@@ -95,10 +93,9 @@ vec4 dcCloudShade(vec3 dir, dc_environment env, dc_skycolor skycol, float soft, 
 
 // the full clouds, for the sky
 vec4 dcClouds(sampler2D tex, vec3 dir, dc_environment env, dc_skycolor skycol, float time) {
-  vec3 n;
+  float n;
   vec2 base = dcCloudBase(tex, dir, env, time, n);
-  // the streaks give the light and shade inside the cloud
-  return dcCloudShade(dir, env, skycol, base.x, base.x - 0.05 - (n.g - 0.5)*0.12, base.x, base.y);
+  return dcCloudShade(dir, env, skycol, base.x, base.x - 0.05, base.x, base.y);
 }
 
 // the clouds for the reflection in the water

@@ -1,12 +1,8 @@
 """Generates the noise texture that the clouds read (mcpack/textures/environment/cloud_noise.png).
 
-1024x1024 RGB, tiles seamlessly. It is made of hair-like fibers that follow one curved flow field, like cirrus
-fibratus: the fibers are not stretched noise, they are drawn along curved lines (line integral convolution), so
-they bend, taper and split. All channels follow the same flow, so they can be read at the same coordinates.
-  R  fine fibers: single hairs, short.
-  G  medium streaks: bundles of fibers, longer.
-  B  large swooshes: where the thick clouds are and where the sky stays clear.
-Every channel is stretched to use 0..1 evenly, so a threshold in the shader is the fraction of the sky left clear.
+1024x1024 grey, tiles seamlessly. Soft swooshes drawn along one curved flow field (line integral convolution), so the
+clouds sweep in long smooth curves like cirrus. There are no fine fibers or streaks: everything is soft.
+The values use 0..1 evenly, so a threshold in the shader is the fraction of the sky left clear.
 
 Usage: python3 tools/generate_cloud_noise.py
 Needs: numpy, scipy, Pillow
@@ -67,22 +63,10 @@ def lic(src, length, jitter=0.5):
     return acc/np.maximum(wsum, 1e-6)
 
 
-def sparse(seed_noise, power):
-    """white noise where only a few pixels are bright, so the fibers stay apart"""
-    return np.exp(power*seed_noise)
+# large soft swooshes that follow the flow: nothing finer, so the clouds stay smooth
+large = lic(band_noise(6, 60, 0.8), 230)
+large = gaussian_filter(large, 1.5, mode="wrap")
 
-
-fine = lic(sparse(rng.standard_normal((N, N)).astype(np.float32), 0.5), 34)
-medium_src = band_noise(12, 90, 0.4)
-medium = lic(sparse(medium_src, 0.45), 70)
-large = lic(band_noise(3, 22, 1.0), 140)
-# a little of the medium streaks make the swooshes fibrous too
-large = large + 0.25*(medium - medium.mean())/medium.std()*large.std()
-
-fine = gaussian_filter(fine, 1.6, mode="wrap")  # no single-pixel bristles, they flicker when the sky moves
-medium = gaussian_filter(medium, 1.0, mode="wrap")
-large = gaussian_filter(large, 1.2, mode="wrap")
-out = np.stack([equalize(fine), equalize(medium), equalize(large)], axis=-1)
 os.makedirs(os.path.dirname(OUTPUT), exist_ok=True)
-Image.fromarray((out*255 + 0.5).astype(np.uint8), "RGB").save(OUTPUT, optimize=True)
+Image.fromarray((equalize(large)*255 + 0.5).astype(np.uint8), "L").save(OUTPUT, optimize=True)
 print("wrote", os.path.abspath(OUTPUT))
