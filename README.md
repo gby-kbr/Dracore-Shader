@@ -6,7 +6,7 @@ Render Dragon shaders for Bedrock that are balanced and lightweight for users
 - Newb torch color for all light-emitting blocks
 - Lightweight height fog with a low ground mist
 - Realistic, calm water that replaces the vanilla water, clear from above and from below, with sky, cloud, sun and moon reflection
-- Soft cirrus clouds: long smooth curved sweeps from one noise texture (1 texture read in the sky), also seen from under the water, in the water reflection and hiding the sun and moon
+- Soft cirrus clouds: long smooth curved sweeps with fine hairs at the edge, from one noise texture (1 texture read in the sky), also seen from under the water, in the water reflection and hiding the sun and moon
 - Reinhard-Jodie color correction with exposure and gamma
 
 All settings are in `src/dracore/config.h`.

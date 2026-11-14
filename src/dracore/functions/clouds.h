@@ -6,27 +6,31 @@
 // ---------------------------------------------------------------------------------------------
 // Clouds: one layer of cirrus fibratus, read from textures/environment/cloud_noise.png (made by
 // tools/generate_cloud_noise.py). The texture holds soft swooshes drawn along one curved flow, so the clouds already
-// sweep in long smooth curves. The shader only places the texture on the sky and cuts it with a soft threshold.
-// There are no fibers or streaks, everything is soft. Per sky pixel that is 1 texture read and no loop. The water reflection and the sun and moon read it too.
+// sweep in long smooth curves (R). Fine hairs (G) only show at the thin edge. The shader places the texture on the sky
+// and cuts it with a soft threshold. Per sky pixel that is 1 texture read and no loop. The water reflection and the sun and moon read it too.
 // ---------------------------------------------------------------------------------------------
 
 // a read of the clouds without the light. n: the texture, x: how thick the cloud is, y: where its edge is
-vec2 dcCloudBase(sampler2D tex, vec3 dir, dc_environment env, float time, out float n) {
+vec2 dcCloudBase(sampler2D tex, vec3 dir, dc_environment env, float time, out vec2 n) {
   // no early return below the horizon: a texture read in a branch that changes inside one screen quad gives a line
   // there. The clouds fade out to nothing at the horizon anyway
   float up = max(dir.y, 0.0);
-  float lift = 1.0/(up*0.6 + 0.45); // the layer is far away at the horizon
+  // the clouds lie on a flat layer: its lines stay straight on the screen. A layer shaped like a dome would bend them
+  // into arches, which is not how a sky looks
+  float lift = 1.0/(up + 0.4);
   vec2 p = dir.xz*lift*DC_CLOUD_SIZE;
   p.x += time*DC_CLOUD_WIND*0.004;
-  n = texture2D(tex, p).r;
-  float thick = n;
+  n = texture2D(tex, p).rg;
   float edge = 1.0 - clamp(DC_CLOUD_COVER + 0.3*env.rainFactor, 0.0, 1.0);
+  // the hairs live in the thin fringe around the body, deep inside the body they fade out
+  float fringe = 1.0 - smoothstep(edge + 0.05, edge + 0.45, n.x);
+  float thick = n.x + (n.y - 0.5)*DC_CLOUD_HAIR*fringe;
   return vec2(thick, edge);
 }
 
 // how much clouds hide the sky in a direction: the sun and the moon are behind them
 float dcCloudCover(sampler2D tex, vec3 dir, dc_environment env, float time) {
-  float n;
+  vec2 n;
   vec2 base = dcCloudBase(tex, dir, env, time, n);
   float dens = smoothstep(base.y, base.y + DC_CLOUD_SOFTNESS, base.x);
   return dens*DC_CLOUD_OPACITY*smoothstep(0.0, 0.16, max(dir.y, 0.0));
@@ -93,7 +97,7 @@ vec4 dcCloudShade(vec3 dir, dc_environment env, dc_skycolor skycol, float soft, 
 
 // the full clouds, for the sky
 vec4 dcClouds(sampler2D tex, vec3 dir, dc_environment env, dc_skycolor skycol, float time) {
-  float n;
+  vec2 n;
   vec2 base = dcCloudBase(tex, dir, env, time, n);
   return dcCloudShade(dir, env, skycol, base.x, base.x - 0.05, base.x, base.y);
 }
