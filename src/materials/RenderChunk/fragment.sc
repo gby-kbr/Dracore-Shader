@@ -1,4 +1,4 @@
-$input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_lightmapUV, v_texcoord0, v_worldPos
+$input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_lightmapUV, v_texcoord0, v_worldPos, v_waterInfo
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
@@ -8,9 +8,16 @@ uniform vec4 FogColor;
 uniform vec4 DitherParams;
 uniform vec4 DitherParams2[3];
 uniform vec4 ViewPositionAndTime;
+uniform vec4 TimeOfDay;
+uniform vec4 FogAndDistanceControl;
+uniform vec4 CameraPosition;
 
 SAMPLER2D_AUTOREG(s_MatTexture);
 SAMPLER2D_AUTOREG(s_LightMapTexture);
+#if defined(TRANSPARENT) && !(defined(SEASONS) || defined(RENDER_AS_BILLBOARDS))
+SAMPLER2D_AUTOREG(s_DcCloudNoise);
+SAMPLER2D_AUTOREG(s_DcSunReflection);
+#endif
 #if defined(SEASONS)
 SAMPLER2D_AUTOREG(s_SeasonsTexture);
 #endif
@@ -67,7 +74,69 @@ void main() {
     }
 #endif
 
-    diffuse.rgb *= texture2D(s_LightMapTexture, v_lightmapUV).rgb;
+    bool isWater = v_waterInfo.y > 0.5;
+    bool underwater = v_waterInfo.z > 0.5;
+
+    dc_environment env;
+    dc_skycolor skyColors;
+    if (isWater || underwater) {
+        env = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+        skyColors = dcSkyColors(env);
+    }
+
+    float time = ViewPositionAndTime.w;
+    vec3 waterReflection = vec3(0.0, 0.0, 0.0);
+    float waterReflectionAmount = 0.0;
+
+#if defined(TRANSPARENT) && !(defined(SEASONS) || defined(RENDER_AS_BILLBOARDS))
+    if (isWater) {
+        // clear water: no biome tint, only the optional vanilla water texture
+        diffuse.rgb = vec3_splat(1.0 - DC_WATER_TEX_OPACITY*(1.0 - diffuse.b*1.8));
+
+        vec3 gPos = v_worldPos + CameraPosition.xyz;
+        vec3 toWater = v_worldPos - ViewPositionAndTime.xyz;
+        float camDist = length(toWater);
+        vec3 viewDir = toWater/camDist; // from the camera to the water
+
+        // the shape of the face tells the top of the water from its sides
+        vec3 faceNormal = normalize(cross(dFdx(v_worldPos), dFdy(v_worldPos)));
+        vec3 normal = abs(faceNormal.y) > 0.5 ? dcWaterNormal(gPos.xz, time, camDist) : faceNormal;
+        if (dot(normal, viewDir) > 0.0) {
+            normal = -normal;
+        }
+        float cosR = -dot(normal, viewDir);
+        vec3 reflDir = reflect(viewDir, normal);
+
+        if (underwater) {
+            // from under the water the surface mirrors the water below
+            waterReflection = dcRenderSky(skyColors, reflDir);
+        } else {
+            vec3 dir = normalize(vec3(reflDir.x, max(reflDir.y, 0.01), reflDir.z));
+            waterReflection = dcRenderSky(skyColors, dir) + dcSunMoonGlow(dir, env);
+            vec4 clouds = dcClouds(s_DcCloudNoise, dir, env, skyColors, time);
+            waterReflection = mix(waterReflection, clouds.rgb, clouds.a);
+
+            // the sun on the water, broken up by the glitter texture
+            float night = 1.0 - smoothstep(-0.22, 0.0, env.dayFactor);
+            float sunVisible = dcGlowVisibility(env.sunDir.y)*(1.0 - night)*(1.0 - 0.8*env.rainFactor);
+            float sparkle = texture2D(s_DcSunReflection, gPos.xz*DC_WATER_SUN_TEX_SCALE + vec2(0.02, 0.013)*time).r;
+            waterReflection += dcWaterSunReflection(dir, env.sunDir, sparkle, sunVisible)*(0.3 + 0.7*(1.0 - cosR));
+        }
+
+        waterReflectionAmount = dcWaterShade(diffuse, v_color0.a, cosR);
+
+        // the reflection is dimmer in the shade
+        waterReflection *= 0.05 + v_lightmapUV.y*v_lightmapUV.y*1.14;
+    }
+#endif
+
+    vec3 light = texture2D(s_LightMapTexture, v_lightmapUV).rgb;
+    if (underwater) {
+        light = (light + v_waterInfo.x)*dcUnderwaterTint(skyColors.horizon, v_lightmapUV.y*v_lightmapUV.y);
+    }
+    diffuse.rgb *= light;
+    diffuse.rgb += waterReflection*waterReflectionAmount;
+
     diffuse.rgb = mix(diffuse.rgb, FogColor.rgb, v_fog.a);
 
     diffuse.rgb = dcColorCorrection(diffuse.rgb);

@@ -10,5 +10,7 @@
 #include "functions/sky.h"
 #include "functions/sunmoon.h"
 #include "functions/clouds.h"
+#include "functions/water.h"
+#include "functions/underwater.h"
 
 #endif

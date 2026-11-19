@@ -3,10 +3,11 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
     $input i_data1, i_data2, i_data3
 #endif
 
-$output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_lightmapUV, v_texcoord0, v_worldPos, v_worldPosition
+$output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_lightmapUV, v_texcoord0, v_worldPos, v_worldPosition, v_waterInfo
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
+#include <dracore/main.sh>
 
 uniform vec4 RenderChunkFogAlpha;
 uniform vec4 FogAndDistanceControl;
@@ -64,7 +65,25 @@ void main() {
     }
 #endif
 
+    // water, found by its color like Newb does, and the light under water
+    float isWater = 0.0;
+#if defined(TRANSPARENT) && !(defined(RENDER_AS_BILLBOARDS) || defined(SEASONS))
+    if (a_color0.b > 0.3 && a_color0.a < 0.95) {
+        isWater = 1.0;
+    }
+#endif
+    float underwater = 0.0;
+    float lightAdd = 0.0;
+#ifndef INSTANCING
+    if (dcDetectUnderwater(FogColor.rgb, FogAndDistanceControl.xy)) {
+        underwater = 1.0;
+        // one value per vertex, blended across the face, which keeps the caustics soft
+        lightAdd = dcUnderwaterLightAdd(lightmapUV*lightmapUV, lightmapUV, fract(a_position.xyz*0.0625), ViewPositionAndTime.w);
+    }
+#endif
+
     v_clipPosition = position;
+    v_waterInfo = vec4(lightAdd, isWater, underwater, 0.0);
     v_worldPosition = vec4(worldPos, 1.0);
     v_color0 = color;
     v_ditheringAndMaskTinting = ditheringAndMaskTinting;

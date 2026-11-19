@@ -25,13 +25,15 @@ void main() {
     env.fogCol = FogColor.rgb;
     env = dcCalculateSunParams(env, TimeOfDay.x);
 
-    dc_skycolor skyColors = dcSkyColors(env);
-    vec3 sky = dcRenderSky(skyColors, viewDir);
-    sky += dcSunMoonGlow(viewDir, env);
+    vec3 sky;
+    if (env.underwater) {
+        // under the water the sun and the clouds are still seen through the surface
+        sky = dcUnderwaterSky(s_DcCloudNoise, viewDir, env, v_envParams.z);
+    } else {
+        dc_skycolor skyColors = dcSkyColors(env);
+        sky = dcRenderSky(skyColors, viewDir);
+        sky += dcSunMoonGlow(viewDir, env);
 
-    // clouds hide the glow of the sun and moon a little behind them, so they
-    // are mixed over the finished sky; no clouds under water
-    if (!env.underwater) {
         vec4 clouds = dcClouds(s_DcCloudNoise, viewDir, env, skyColors, v_envParams.z);
         sky = mix(sky, clouds.rgb, clouds.a);
     }

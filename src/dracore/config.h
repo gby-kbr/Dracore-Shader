@@ -45,6 +45,28 @@
 #define DC_CLOUD_NIGHT_SHADE_COL vec3(0.022, 0.034, 0.08)
 #define DC_CLOUD_RAIN_DARK      0.1   // 0.3 stormy dark ~ 1.0 bright grey
 
+// Water (pure clear water with thin waves)
+#define DC_WATER_TRANSPARENCY   1.0   // 0.0 invisible ~ 1.0 vanilla opacity
+#define DC_WATER_COLOR          vec3(0.0, 0.0, 0.0) // tint of the water, white = no tint
+#define DC_WATER_REFLECTION     1.5   // 0.0 none ~ 1.5 strong mirror
+#define DC_WATER_FRESNEL        0.0   // 0.0 clear ~ 0.15 reflective when looked at straight
+#define DC_WATER_BUMP           0.01  // 0.01 flat ~ 0.2 choppy
+#define DC_WATER_WAVE_SCALE     0.3   // 0.3 long waves ~ 3.0 tiny ripples
+#define DC_WATER_WAVE_SPEED     0.8   // 0.2 calm ~ 2.0 turbulent
+#define DC_WATER_TEX_OPACITY    0.0   // 0.0 plain water ~ 1.0 vanilla water texture
+
+// Sun reflection on the water, shaped by textures/environment/sun_reflection.png
+#define DC_WATER_SUN_REFLECTION 1.0   // 0.0 none ~ 3.0 blinding
+#define DC_WATER_SUN_SHARPNESS  300.0 // 50.0 wide glare ~ 1000.0 tight spot
+#define DC_WATER_SUN_SPARKLE    0.8   // 0.0 smooth ~ 1.0 broken into glitter
+#define DC_WATER_SUN_TEX_SCALE  0.6   // 0.2 big glitter ~ 2.0 fine glitter
+
+// Under the water
+#define DC_UNDERWATER_BRIGHTNESS     0.8 // 0.0 dark ~ 3.0 bright
+#define DC_CAUSTIC_INTENSITY         2.0 // 0.0 none ~ 5.0 bright, light patterns on the ground
+#define DC_UNDERWATER_SKY_VISIBILITY 1.0 // 0.0 no sky ~ 1.0 sun and clouds seen from under the water
+#define DC_UNDERWATER_SKY_WOBBLE     0.04 // 0.0 still ~ 0.15 wavy view of the sky
+
 // Sun and moon path (degrees)
 #define DC_SUN_PATH_YAW    15.0
 #define DC_MOON_PATH_YAW   17.0
