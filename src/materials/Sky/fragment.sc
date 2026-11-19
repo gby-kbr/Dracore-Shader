@@ -32,7 +32,7 @@ void main() {
     // clouds hide the glow of the sun and moon a little behind them, so they
     // are mixed over the finished sky; no clouds under water
     if (!env.underwater) {
-        vec4 clouds = dcClouds(s_DcCloudNoise, viewDir, env, v_envParams.z);
+        vec4 clouds = dcClouds(s_DcCloudNoise, viewDir, env, skyColors, v_envParams.z);
         sky = mix(sky, clouds.rgb, clouds.a);
     }
 

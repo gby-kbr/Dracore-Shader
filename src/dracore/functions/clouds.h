@@ -19,7 +19,7 @@ float dcCloudDensityField(vec4 n, vec4 d, vec4 d2) {
 }
 
 // returns rgb (before color correction) and coverage in alpha
-vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, float time) {
+vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyColors, float time) {
   float up = dir.y;
   float horizonFade = smoothstep(0.0, 0.22, up);
   if (horizonFade <= 0.0) return vec4(0.0, 0.0, 0.0, 0.0);
@@ -73,6 +73,13 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, float time) {
   // colors, linear and before color correction
   vec3 litCol = mix(DC_CLOUD_NIGHT_LIT_COL, DC_CLOUD_LIT_COL, 1.0 - nightFactor);
   vec3 shadeCol = mix(DC_CLOUD_NIGHT_SHADE_COL, DC_CLOUD_SHADE_COL, 1.0 - nightFactor);
+
+  // by day the clouds take the color of the horizon, with the brightness kept.
+  // The horizon already includes rain, so rain clouds turn grey on their own
+  vec3 horizonTint = skyColors.horizon/max(dcLuminance(skyColors.horizon), 0.0001);
+  vec3 tint = mix(vec3_splat(1.0), horizonTint, DC_CLOUD_HORIZON_TINT*(1.0 - nightFactor));
+  litCol *= tint;
+  shadeCol *= tint;
   vec3 deepCol = shadeCol*DC_CLOUD_DEEP_SHADE;
   vec3 col = mix(mix(deepCol, shadeCol, core*0.0 + (1.0 - core)*0.7 + 0.3*lit), litCol, lit);
 

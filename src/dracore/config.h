@@ -40,6 +40,7 @@
 #define DC_CLOUD_DEEP_SHADE     0.4  // 0.4 dark undersides ~ 1.0 same as the shade color
 #define DC_CLOUD_LIT_COL        vec3(3.5, 3.5, 3.5)    // side facing the sun
 #define DC_CLOUD_SHADE_COL      vec3(3.5, 3.5, 3.5) // soft grey-blue underside
+#define DC_CLOUD_HORIZON_TINT   0.6   // 0.0 own colors ~ 1.0 fully the color of the horizon
 #define DC_CLOUD_NIGHT_LIT_COL  vec3(0.05, 0.07, 0.14)
 #define DC_CLOUD_NIGHT_SHADE_COL vec3(0.022, 0.034, 0.08)
 #define DC_CLOUD_RAIN_DARK      0.1   // 0.3 stormy dark ~ 1.0 bright grey
