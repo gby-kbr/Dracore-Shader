@@ -16,7 +16,6 @@ SAMPLER2D_AUTOREG(s_MatTexture);
 SAMPLER2D_AUTOREG(s_LightMapTexture);
 #if defined(TRANSPARENT) && !(defined(SEASONS) || defined(RENDER_AS_BILLBOARDS))
 SAMPLER2D_AUTOREG(s_DcCloudNoise);
-SAMPLER2D_AUTOREG(s_DcSunReflection);
 #endif
 #if defined(SEASONS)
 SAMPLER2D_AUTOREG(s_SeasonsTexture);
@@ -111,16 +110,9 @@ void main() {
             // from under the water the surface mirrors the water below
             waterReflection = dcRenderSky(skyColors, reflDir);
         } else {
-            vec3 dir = normalize(vec3(reflDir.x, max(reflDir.y, 0.01), reflDir.z));
-            waterReflection = dcRenderSky(skyColors, dir) + dcSunMoonGlow(dir, env);
-            vec4 clouds = dcClouds(s_DcCloudNoise, dir, env, skyColors, time);
-            waterReflection = mix(waterReflection, clouds.rgb, clouds.a);
-
-            // the sun on the water, broken up by the glitter texture
-            float night = 1.0 - smoothstep(-0.22, 0.0, env.dayFactor);
-            float sunVisible = dcGlowVisibility(env.sunDir.y)*(1.0 - night)*(1.0 - 0.8*env.rainFactor);
-            float sparkle = texture2D(s_DcSunReflection, gPos.xz*DC_WATER_SUN_TEX_SCALE + vec2(0.02, 0.013)*time).r;
-            waterReflection += dcWaterSunReflection(dir, env.sunDir, sparkle, sunVisible)*(0.3 + 0.7*(1.0 - cosR));
+            // a reflected ray that would go below the horizon is held at the horizon
+            vec3 dir = normalize(vec3(reflDir.x, max(reflDir.y, 0.0), reflDir.z));
+            waterReflection = dcSkyRadiance(dir, env, skyColors, vec2(40.0, 6.0)*DC_WATER_SUN_GLITTER, s_DcCloudNoise, time);
         }
 
         waterReflectionAmount = dcWaterShade(diffuse, v_color0.a, cosR);

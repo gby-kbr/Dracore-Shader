@@ -55,11 +55,9 @@
 #define DC_WATER_WAVE_SPEED     0.8   // 0.2 calm ~ 2.0 turbulent
 #define DC_WATER_TEX_OPACITY    0.0   // 0.0 plain water ~ 1.0 vanilla water texture
 
-// Sun reflection on the water, shaped by textures/environment/sun_reflection.png
-#define DC_WATER_SUN_REFLECTION 1.0   // 0.0 none ~ 3.0 blinding
-#define DC_WATER_SUN_SHARPNESS  300.0 // 50.0 wide glare ~ 1000.0 tight spot
-#define DC_WATER_SUN_SPARKLE    0.8   // 0.0 smooth ~ 1.0 broken into glitter
-#define DC_WATER_SUN_TEX_SCALE  0.6   // 0.2 big glitter ~ 2.0 fine glitter
+// Sun and moon in the water, like Bedroalism: the reflected sky shows the sun and the moon discs,
+// the waves break them up
+#define DC_WATER_SUN_GLITTER    1.0   // 0.0 no sun and moon in the water ~ 3.0 blinding
 
 // Under the water
 #define DC_UNDERWATER_BRIGHTNESS     0.8 // 0.0 dark ~ 3.0 bright

@@ -93,4 +93,25 @@ vec3 dcSunMoonGlow(vec3 dir, dc_environment env) {
   return glow*DC_SUNMOON_GLOW*(1.0 - 0.8*rain);
 }
 
+
+// The sun and moon discs, for the reflection on the water (the game draws the
+// real discs only in the sky). Same color all day, no dawn color.
+// dir: normalized direction of the ray. sunRadiance and moonRadiance set how
+// bright each disc is
+vec3 dcSunMoonDisc(vec3 dir, dc_environment env, float sunRadiance, float moonRadiance) {
+  float night = 1.0 - smoothstep(-0.22, 0.0, env.dayFactor);
+
+  // the soft edge is the same share of the disc as in the quad
+  float sunOuter = cos(DC_SUNMOON_DISC_RADIUS*DC_SUN_SIZE);
+  float sunInner = cos(DC_SUNMOON_DISC_RADIUS*DC_SUN_SIZE*0.767);
+  float moonOuter = cos(DC_SUNMOON_DISC_RADIUS*DC_MOON_SIZE);
+  float moonInner = cos(DC_SUNMOON_DISC_RADIUS*DC_MOON_SIZE*0.767);
+
+  float sun = smoothstep(sunOuter, sunInner, dot(dir, env.sunDir))*dcGlowVisibility(env.sunDir.y)*(1.0 - night);
+  float moon = smoothstep(moonOuter, moonInner, dot(dir, env.moonDir))*dcGlowVisibility(env.moonDir.y)*night;
+
+  float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
+  return (vec3(1.15, 1.10, 1.00)*(sun*sunRadiance) + vec3(0.62, 0.70, 0.90)*(moon*moonRadiance))*(1.0 - 0.8*rain);
+}
+
 #endif

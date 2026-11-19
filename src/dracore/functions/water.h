@@ -2,6 +2,7 @@
 #define DC_WATER_H
 
 #include "utils.h"
+#include "clouds.h"
 
 // Thin, light waves: four sine waves that all run roughly the same way, from long
 // to short, so the surface reads as fine ripples and not as round bumps. The slope
@@ -57,16 +58,13 @@ float dcWaterShade(inout vec4 color, float baseAlpha, float cosR) {
 }
 
 
-// Sun reflected on the water. R: the reflected view direction, sunDir: direction
-// to the sun, sparkle: a 0..1 value from textures/environment/sun_reflection.png
-// that breaks the reflection into glitter. visibility: 0 at night and when the
-// sun is below the horizon. The sun's light has the same color all day.
-vec3 dcWaterSunReflection(vec3 R, vec3 sunDir, float sparkle, float visibility) {
-  float d = max(dot(R, sunDir), 0.0);
-  float spot = pow(d, DC_WATER_SUN_SHARPNESS);
-  float glare = pow(d, DC_WATER_SUN_SHARPNESS*0.08)*0.12;
-  float mask = mix(1.0, sparkle*2.0, DC_WATER_SUN_SPARKLE);
-  return DC_SUNGLOW_COL*(spot*4.0 + glare)*mask*visibility*DC_WATER_SUN_REFLECTION;
+// Everything the sky shows in one direction, for the reflection on the water:
+// gradient, glow, the sun and moon discs, and the clouds in front of them.
+// discRadiance: x sun, y moon, 0.0 hides the discs
+vec3 dcSkyRadiance(vec3 dir, dc_environment env, dc_skycolor sky, vec2 discRadiance, sampler2D noiseTex, float time) {
+  vec4 clouds = dcClouds(noiseTex, dir, env, sky, time);
+  vec3 behind = dcRenderSky(sky, dir) + dcSunMoonGlow(dir, env) + dcSunMoonDisc(dir, env, discRadiance.x, discRadiance.y);
+  return mix(behind, clouds.rgb, clouds.a);
 }
 
 #endif
