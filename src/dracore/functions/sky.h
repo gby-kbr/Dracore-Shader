@@ -6,8 +6,8 @@
 struct dc_skycolor {
   vec3 zenith;
   vec3 horizon;      // day, night, rain or underwater
-  vec3 dawnHorizon;  // the horizon at sunrise and sunset
-  float dawn;        // [0.0, 1.0] how much dawn there is, it only reaches the horizon near the sun
+  vec3 sunlight;     // pale light of the low sun, only on the horizon around it
+  float dawn;        // [0.0, 1.0] how much sunrise/sunset light there is
   vec3 sunDir;       // normalized
 };
 
@@ -26,8 +26,9 @@ dc_skycolor dcSkyColors(dc_environment env) {
   float dawnFactor = 1.0 - env.dayFactor*env.dayFactor;
   dawnFactor *= dawnFactor*dawnFactor;
   dawnFactor *= mix(1.0, dawnFactor*dawnFactor, nightFactor);
-  // the zenith only darkens towards a deeper blue, the warm dawn color stays on the horizon
+  // the sky itself only turns a muted lavender, there is no orange or red
   s.zenith = mix(s.zenith, DC_DAWN_ZENITH_COL, dawnFactor);
+  s.horizon = mix(s.horizon, DC_DAWN_HORIZON_COL, dawnFactor);
 
   // detection reports full rain under water, so it is masked here
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
@@ -37,7 +38,7 @@ dc_skycolor dcSkyColors(dc_environment env) {
   s.zenith = mix(s.zenith, DC_RAIN_ZENITH_COL*zh, rainMix);
   s.horizon = mix(s.horizon, DC_RAIN_HORIZON_COL*hh, rainMix);
 
-  s.dawnHorizon = DC_DAWN_HORIZON_COL;
+  s.sunlight = DC_DAWN_SUNLIGHT_COL;
   s.dawn = dawnFactor*(1.0 - rainMix);
   s.sunDir = env.sunDir;
 
@@ -60,11 +61,14 @@ vec3 dcRenderSky(dc_skycolor s, vec3 viewDir) {
   float vh = 1.0 - up*up;
   float gradient = vh*vh*vh;
 
-  // dawn color only on the horizon around the sun
-  float nearSun = smoothstep(-0.2, 0.9, dot(viewDir, s.sunDir));
-  vec3 horizon = mix(s.horizon, s.dawnHorizon, s.dawn*nearSun);
+  // the light of the sun only shows on the horizon around it, fading out softly
+  float nearSun = smoothstep(0.3, 1.0, dot(viewDir, s.sunDir));
+  nearSun *= nearSun;
+  vec3 horizon = mix(s.horizon, s.sunlight, s.dawn*nearSun);
 
   vec3 sky = mix(s.zenith, horizon, gradient);
+
+  // the zenith is darker than the horizon
   return sky*(0.5 + 0.5*gradient);
 }
 
