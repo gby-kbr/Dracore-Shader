@@ -29,7 +29,7 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, float time) {
   uv += vec2(1.0, 0.35)*time*DC_CLOUD_WIND;
 
   // slow bend so the clouds are not straight and do not repeat like a tile
-  vec2 warp = (texture2D(noiseTex, uv*0.09).rg - 0.5)*DC_CLOUD_WARP;
+  vec2 warp = (texture2D(noiseTex, uv*0.09).rg - 0.5)*0.0;
   vec2 p = (uv + warp)*DC_CLOUD_SCALE;
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
@@ -67,7 +67,7 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, float time) {
   float core = smoothstep(edge + soft, edge + soft + 0.30, f);
 
   // 1 on the side open to the light, 0 deep inside shadow
-  float lit = clamp(1.0 - inFront*DC_CLOUD_SHADOW + (1.0 - core)*0.25, 0.0, 1.0);
+  float lit = clamp(1.0 - inFront*0.0 + (1.0 - core)*0.25, 0.0, 1.0);
   lit = lit*lit*(3.0 - 2.0*lit);
 
   // colors, linear and before color correction
@@ -78,7 +78,7 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, float time) {
 
   // thin edges towards the light shine through
   float toward = max(dot(dir, lightDir), 0.0);
-  float silver = pow(toward, 6.0)*(1.0 - core)*density*DC_CLOUD_SILVER;
+  float silver = pow(toward, 6.0)*(1.0 - core)*density*0.0;
   col += litCol*silver*(1.0 - nightFactor);
 
   // rain clouds are flat and grey
