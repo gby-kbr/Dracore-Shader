@@ -26,6 +26,7 @@
 #define DC_SUN_SIZE       1.0   // 0.3 tiny ~ 4.0 massive
 #define DC_MOON_SIZE      1.0   // 0.3 tiny ~ 4.0 massive
 #define DC_SUNMOON_GLOW   1.0   // 0.0 none ~ 2.0 strong, the soft glow around the sun and the moon
+#define DC_SUNGLOW_COL    vec3(1.0, 0.90, 0.45) // pale cream light of the sun, the same all day
 
 // Sun and moon path (degrees)
 #define DC_SUN_PATH_YAW    15.0

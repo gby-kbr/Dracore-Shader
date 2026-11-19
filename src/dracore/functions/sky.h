@@ -60,18 +60,33 @@ vec3 dcRenderSky(dc_skycolor s, vec3 viewDir) {
 // (the disc is 25% of the quad: 0.25 * 70 / 300)
 #define DC_SUNMOON_DISC_RADIUS 0.0583
 
-// Soft halo around the sun and the moon: a bright core fading into a wide faint
-// glow. Added to the sky before color correction. The light of the sun has the
-// same pale color all day, it does not change at sunrise or sunset.
+// Glow around the sun and the moon, added to the sky before color correction.
+// The sun has a bright core, a wide soft halo and a haze that hugs the horizon
+// around it. A low sun shines through more air, so its glow is brighter and
+// wider; that only changes the brightness, the color of the sun's light is the
+// same all day and does not change at sunrise or sunset.
 vec3 dcSunMoonGlow(vec3 dir, dc_environment env) {
   float night = 1.0 - smoothstep(-0.22, 0.0, env.dayFactor);
 
   float sunAngle = sqrt(2.0*max(1.0 - dot(dir, env.sunDir), 0.0))/(DC_SUNMOON_DISC_RADIUS*DC_SUN_SIZE);
   float moonAngle = sqrt(2.0*max(1.0 - dot(dir, env.moonDir), 0.0))/(DC_SUNMOON_DISC_RADIUS*DC_MOON_SIZE);
-  float sunGlow = exp(-sunAngle*1.1)*0.45 + exp(-sunAngle*0.22)*0.14;
+
+  float low = 1.0 - smoothstep(0.0, 0.5, env.sunDir.y);
+  float radial = 2.0*exp(-sunAngle*1.1) + 0.7*exp(-sunAngle*0.30) + 0.35*exp(-sunAngle*0.08);
+
+  // haze along the horizon in the direction of the sun
+  vec2 viewFlat = dir.xz/max(length(dir.xz), 0.0001);
+  vec2 sunFlat = env.sunDir.xz/max(length(env.sunDir.xz), 0.0001);
+  float aroundSun = smoothstep(0.2, 1.0, dot(viewFlat, sunFlat));
+  aroundSun *= aroundSun;
+  float up = max(dir.y, 0.0);
+  float fade = 1.0 - up*up;
+  float horizonHaze = 0.9*aroundSun*fade*fade*fade*low;
+
+  float sunGlow = (radial*(0.35 + 0.65*low) + horizonHaze)*(1.0 + low);
   float moonGlow = exp(-moonAngle*1.2)*0.30 + exp(-moonAngle*0.25)*0.08;
 
-  vec3 glow = vec3(1.0, 0.95, 0.85)*sunGlow*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
+  vec3 glow = DC_SUNGLOW_COL*sunGlow*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
             + vec3(0.55, 0.68, 1.0)*moonGlow*dcGlowVisibility(env.moonDir.y)*night;
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
