@@ -4,6 +4,7 @@ $input v_clipPosition, v_color0, v_fog, v_light, v_texcoord0, v_worldPos
 #include <MinecraftRenderer.Materials/ActorUtil.dragonh>
 #include <MinecraftRenderer.Materials/FogUtil.dragonh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
+#include <dracore/main.sh>
 
 uniform vec4 ColorBased;
 uniform vec4 ChangeColor;
@@ -64,6 +65,9 @@ void main() {
 #endif
 
     albedo.rgb = applyFog(albedo.rgb, v_fog.rgb, v_fog.a);
+
+    albedo.rgb = dcColorCorrection(albedo.rgb);
+
     gl_FragColor = albedo;
 #endif
 }

@@ -5,6 +5,7 @@
 // config. shaderc optimizes away unused functions per material.
 
 #include "config.h"
+#include "functions/tonemap.h"
 #include "functions/detection.h"
 
 #endif
