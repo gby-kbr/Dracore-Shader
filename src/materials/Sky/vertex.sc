@@ -10,12 +10,14 @@
 
     uniform vec4 FogColor;
     uniform vec4 FogAndDistanceControl;
+    uniform vec4 ViewPositionAndTime;
 #endif
 
 void main() {
 #ifndef INSTANCING
-    v_envParams = vec2(float(dcDetectUnderwater(FogColor.rgb, FogAndDistanceControl.xy)),
-                       dcDetectRain(FogAndDistanceControl.xyz));
+    v_envParams = vec3(float(dcDetectUnderwater(FogColor.rgb, FogAndDistanceControl.xy)),
+                       dcDetectRain(FogAndDistanceControl.xyz),
+                       ViewPositionAndTime.w);
 
     // one quad over the whole screen, the sky is drawn per pixel from the view direction
     vec4 pos = vec4(a_position.xzy, 1.0);

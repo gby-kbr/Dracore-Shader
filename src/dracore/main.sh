@@ -9,5 +9,6 @@
 #include "functions/detection.h"
 #include "functions/sky.h"
 #include "functions/sunmoon.h"
+#include "functions/clouds.h"
 
 #endif

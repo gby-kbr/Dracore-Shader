@@ -28,6 +28,19 @@
 #define DC_SUNMOON_GLOW   1.0   // 0.0 none ~ 2.0 strong, the soft glow around the sun and the moon
 #define DC_SUNGLOW_COL    vec3(1.0, 0.90, 0.45) // pale cream light of the sun, the same all day
 
+// Clouds (cumulus, one layer in the sky)
+#define DC_CLOUD_COVER          0.52  // 0.0 clear ~ 1.0 overcast
+#define DC_CLOUD_SOFTNESS       0.22  // 0.05 hard edges ~ 0.4 fluffy edges
+#define DC_CLOUD_ROUGHNESS      0.12  // 0.0 smooth ~ 0.6 ragged edges
+#define DC_CLOUD_SCALE          0.4   // 0.5 huge clouds ~ 4.0 small clouds
+#define DC_CLOUD_WIND           0.004 // 0.0 still ~ 0.05 fast
+#define DC_CLOUD_SILVER         0.9   // 0.0 none ~ 2.0 bright rim towards the sun
+#define DC_CLOUD_LIT_COL        vec3(2.4, 2.4, 2.5)    // side facing the sun
+#define DC_CLOUD_SHADE_COL      vec3(0.55, 0.72, 1.20) // soft grey-blue underside
+#define DC_CLOUD_NIGHT_LIT_COL  vec3(0.05, 0.07, 0.14)
+#define DC_CLOUD_NIGHT_SHADE_COL vec3(0.022, 0.034, 0.08)
+#define DC_CLOUD_RAIN_DARK      0.8
+
 // Sun and moon path (degrees)
 #define DC_SUN_PATH_YAW    15.0
 #define DC_MOON_PATH_YAW   17.0

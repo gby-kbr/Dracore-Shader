@@ -7,6 +7,8 @@
 #ifndef INSTANCING
     #include <dracore/main.sh>
 
+    SAMPLER2D_AUTOREG(s_DcCloudNoise);
+
     uniform vec4 TimeOfDay;
     uniform vec4 FogColor;
 #endif
@@ -26,6 +28,13 @@ void main() {
     dc_skycolor skyColors = dcSkyColors(env);
     vec3 sky = dcRenderSky(skyColors, viewDir);
     sky += dcSunMoonGlow(viewDir, env);
+
+    // clouds hide the glow of the sun and moon a little behind them, so they
+    // are mixed over the finished sky; no clouds under water
+    if (!env.underwater) {
+        vec4 clouds = dcClouds(s_DcCloudNoise, viewDir, env, v_envParams.z);
+        sky = mix(sky, clouds.rgb, clouds.a);
+    }
 
     gl_FragColor = vec4(dcColorCorrection(sky), 1.0);
 #else

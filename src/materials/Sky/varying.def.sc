@@ -7,4 +7,4 @@ vec4 i_data2 : TEXCOORD6;
 vec4 i_data3 : TEXCOORD5;
 
 vec3 v_worldPos  : TEXCOORD3;
-vec2 v_envParams : TEXCOORD4; // x: underwater, y: rain
+vec3 v_envParams : TEXCOORD4; // x: underwater, y: rain, z: time in seconds
