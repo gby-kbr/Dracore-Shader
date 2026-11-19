@@ -10,6 +10,18 @@
 #define DC_GAMMA 1.33     // 0.3 low ~ 2.0 high
 #define DC_EXPOSURE 1.3   // [toggle] 0.5 dark ~ 3.0 bright
 
+// Sky colors, zenith and horizon only (linear, before color correction)
+#define DC_DAY_ZENITH_COL     vec3(0.3, 0.9, 2.0)
+#define DC_DAY_HORIZON_COL    vec3(1.0, 1.6, 1.8)
+#define DC_DAWN_ZENITH_COL    vec3(0.1, 0.4, 0.7)
+#define DC_DAWN_HORIZON_COL   vec3(3.0, 0.4, 0.4)   // only shows on the horizon near the sun
+#define DC_NIGHT_ZENITH_COL   vec3(0.008, 0.048, 0.08)
+#define DC_NIGHT_HORIZON_COL  vec3(0.02, 0.06, 0.1)
+#define DC_RAIN_ZENITH_COL    vec3(0.47, 0.51, 0.56)
+#define DC_RAIN_HORIZON_COL   vec3(0.6, 0.6, 0.6)
+#define DC_SKY_RAIN_MIX       0.9    // 0.0 no change ~ 1.0 fully overcast in rain
+#define DC_UNDERWATER_TINT    vec3(0.9, 1.0, 0.9) // sky tint when underwater
+
 // Sun and moon path (degrees)
 #define DC_SUN_PATH_YAW    15.0
 #define DC_MOON_PATH_YAW   17.0

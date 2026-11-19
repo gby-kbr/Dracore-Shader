@@ -53,7 +53,9 @@ float dcDetectDayFactor(vec3 FOG_COLOR) {
 
 dc_environment dcCalculateSunParams(dc_environment env, float TIME_OF_DAY) {
   float t = 2.0 * DC_PI * TIME_OF_DAY;
-  vec3 sunDir = vec3(sin(t), cos(t), 0.0);
+  // The game's own sun rises in the east (+x). Newb mirrors this because its
+  // sun quad is mirrored; Dracore keeps the game's direction.
+  vec3 sunDir = vec3(-sin(t), cos(t), 0.0);
   vec3 moonDir = vec3(-sunDir.x, -sunDir.y, 0.0);
   env.dayFactor = sunDir.y;
 
