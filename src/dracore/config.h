@@ -30,16 +30,22 @@
 
 // Clouds (cumulus, one layer in the sky)
 #define DC_CLOUD_COVER          0.52  // 0.0 clear ~ 1.0 overcast
+#define DC_CLOUD_SCALE          0.40  // 0.2 huge clouds ~ 2.0 small clouds
+#define DC_CLOUD_PUFFINESS      0.55  // 0.0 broad smooth masses ~ 1.0 round cauliflower puffs
 #define DC_CLOUD_SOFTNESS       0.22  // 0.05 hard edges ~ 0.4 fluffy edges
-#define DC_CLOUD_ROUGHNESS      0.12  // 0.0 smooth ~ 0.6 ragged edges
-#define DC_CLOUD_SCALE          0.4   // 0.5 huge clouds ~ 4.0 small clouds
+#define DC_CLOUD_ROUGHNESS      0.26  // 0.0 smooth ~ 0.8 ragged, torn edges
+#define DC_CLOUD_DETAIL_SCALE   2.5   // 1.0 coarse ~ 5.0 fine detail
+#define DC_CLOUD_WARP           0.25  // 0.0 straight ~ 0.6 twisted, windswept
 #define DC_CLOUD_WIND           0.004 // 0.0 still ~ 0.05 fast
+#define DC_CLOUD_DEPTH          0.045 // 0.01 flat ~ 0.1 deep, how far the self shadow reaches
+#define DC_CLOUD_SHADOW         0.75  // 0.0 no shading ~ 1.2 strong shading
+#define DC_CLOUD_DEEP_SHADE     0.80  // 0.4 dark undersides ~ 1.0 same as the shade color
 #define DC_CLOUD_SILVER         0.9   // 0.0 none ~ 2.0 bright rim towards the sun
 #define DC_CLOUD_LIT_COL        vec3(2.4, 2.4, 2.5)    // side facing the sun
 #define DC_CLOUD_SHADE_COL      vec3(0.55, 0.72, 1.20) // soft grey-blue underside
 #define DC_CLOUD_NIGHT_LIT_COL  vec3(0.05, 0.07, 0.14)
 #define DC_CLOUD_NIGHT_SHADE_COL vec3(0.022, 0.034, 0.08)
-#define DC_CLOUD_RAIN_DARK      0.8
+#define DC_CLOUD_RAIN_DARK      0.8   // 0.3 stormy dark ~ 1.0 bright grey
 
 // Sun and moon path (degrees)
 #define DC_SUN_PATH_YAW    15.0

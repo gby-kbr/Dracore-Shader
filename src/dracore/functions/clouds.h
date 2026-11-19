@@ -10,8 +10,12 @@
 // little closer to the light: the side facing the light is bright, the side
 // facing away is a soft grey-blue.
 
-float dcCloudDensityField(vec4 n) {
-  return mix(n.r, n.g, 0.55) + (n.b - 0.5)*DC_CLOUD_ROUGHNESS;
+// density of the cloud at one spot: big shapes from the coverage and puff
+// channels, then eaten away by two layers of detail so the edges are ragged
+// and billowy instead of smooth blobs
+float dcCloudDensityField(vec4 n, vec4 d, vec4 d2) {
+  float base = mix(n.r, n.g, DC_CLOUD_PUFFINESS);
+  return base + (d.g - 0.5)*DC_CLOUD_ROUGHNESS + (d2.g - 0.5)*DC_CLOUD_ROUGHNESS*0.5;
 }
 
 // returns rgb (before color correction) and coverage in alpha
@@ -24,8 +28,8 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, float time) {
   vec2 uv = dir.xz/(up + 0.12);
   uv += vec2(1.0, 0.35)*time*DC_CLOUD_WIND;
 
-  // slow bend so the clouds do not look like a repeating tile
-  vec2 warp = (texture2D(noiseTex, uv*0.09).rg - 0.5)*0.12;
+  // slow bend so the clouds are not straight and do not repeat like a tile
+  vec2 warp = (texture2D(noiseTex, uv*0.09).rg - 0.5)*DC_CLOUD_WARP;
   vec2 p = (uv + warp)*DC_CLOUD_SCALE;
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
@@ -34,30 +38,43 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, float time) {
   // the light that shapes the clouds: the sun by day, the moon by night
   vec3 lightDir = mix(env.sunDir, env.moonDir, nightFactor);
   vec2 lightFlat = lightDir.xz/max(length(lightDir.xz), 0.0001);
-  float lightLen = 0.045*(1.3 - 0.7*clamp(lightDir.y, 0.0, 1.0));
+  float lightLen = DC_CLOUD_DEPTH*(1.3 - 0.7*clamp(lightDir.y, 0.0, 1.0));
+  vec2 step1 = lightFlat*lightLen*DC_CLOUD_SCALE;
 
+  // detail follows the big shape, so it bends with it
+  vec2 q = p*DC_CLOUD_DETAIL_SCALE;
   vec4 shape = texture2D(noiseTex, p);
-  vec4 toLight = texture2D(noiseTex, p + lightFlat*lightLen*DC_CLOUD_SCALE);
+  vec4 detail = texture2D(noiseTex, q + shape.rg*0.12);
+  vec4 detail2 = texture2D(noiseTex, q*2.3 + shape.gb*0.12);
 
-  float f = dcCloudDensityField(shape);
-  float fl = dcCloudDensityField(toLight);
+  // two steps towards the light: how much cloud sits in front of this spot
+  vec4 s1 = texture2D(noiseTex, p + step1);
+  vec4 s2 = texture2D(noiseTex, p + step1*2.2);
 
   float cover = mix(DC_CLOUD_COVER, 0.95, rain);
   float edge = 1.0 - cover;
   float soft = DC_CLOUD_SOFTNESS;
+
+  float f = dcCloudDensityField(shape, detail, detail2);
+  // the detail at the shifted spots is reused, the cheap shadow does not need its own
+  float f1 = dcCloudDensityField(s1, detail, detail2);
+  float f2 = dcCloudDensityField(s2, detail, detail2);
+
   float density = smoothstep(edge, edge + soft, f);
-  float densityL = smoothstep(edge, edge + soft, fl);
+  float inFront = smoothstep(edge, edge + soft, f1)*0.6 + smoothstep(edge, edge + soft, f2)*0.4;
 
-  // thick middle of a cloud, away from its edge
-  float core = smoothstep(edge + soft, edge + soft + 0.35, f);
+  // thickness of this spot, the thick middle of a cloud is darker underneath
+  float core = smoothstep(edge + soft, edge + soft + 0.30, f);
 
-  // lit side: 1 where the light side is thinner than this spot (open to the light)
-  float lit = clamp(0.60 + (density - densityL)*2.2 - core*0.55, 0.0, 1.0);
+  // 1 on the side open to the light, 0 deep inside shadow
+  float lit = clamp(1.0 - inFront*DC_CLOUD_SHADOW + (1.0 - core)*0.25, 0.0, 1.0);
+  lit = lit*lit*(3.0 - 2.0*lit);
 
   // colors, linear and before color correction
   vec3 litCol = mix(DC_CLOUD_NIGHT_LIT_COL, DC_CLOUD_LIT_COL, 1.0 - nightFactor);
   vec3 shadeCol = mix(DC_CLOUD_NIGHT_SHADE_COL, DC_CLOUD_SHADE_COL, 1.0 - nightFactor);
-  vec3 col = mix(shadeCol, litCol, lit);
+  vec3 deepCol = shadeCol*DC_CLOUD_DEEP_SHADE;
+  vec3 col = mix(mix(deepCol, shadeCol, core*0.0 + (1.0 - core)*0.7 + 0.3*lit), litCol, lit);
 
   // thin edges towards the light shine through
   float toward = max(dot(dir, lightDir), 0.0);
