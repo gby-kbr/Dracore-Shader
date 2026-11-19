@@ -7,12 +7,17 @@ struct dc_skycolor {
   vec3 zenith;
   vec3 horizon;      // day, night, rain or underwater
   vec3 sunlight;     // pale light of the low sun, only on the horizon around it
-  float dawn;        // [0.0, 1.0] how much sunrise/sunset light there is
+  float sunlightAmount; // [0.0, 1.0] how much low-sun light there is
   vec3 sunDir;       // normalized
 };
 
-// Day, night, dawn, rain and underwater, mixed the way Newb does, with zenith
-// and horizon only.
+// light below the horizon is gone
+float dcGlowVisibility(float lightHeight) {
+  return smoothstep(-0.08, 0.12, lightHeight);
+}
+
+// Day, night, rain and underwater, with zenith and horizon only. Sunrise and
+// sunset have no sky color of their own.
 dc_skycolor dcSkyColors(dc_environment env) {
   dc_skycolor s;
 
@@ -22,13 +27,10 @@ dc_skycolor dcSkyColors(dc_environment env) {
   s.zenith = mix(DC_DAY_ZENITH_COL, DC_NIGHT_ZENITH_COL*f, nightFactor);
   s.horizon = mix(DC_DAY_HORIZON_COL, DC_NIGHT_HORIZON_COL*f, nightFactor);
 
-  // strongest while the sun is on the horizon, almost gone at night
-  float dawnFactor = 1.0 - env.dayFactor*env.dayFactor;
-  dawnFactor *= dawnFactor*dawnFactor;
-  dawnFactor *= mix(1.0, dawnFactor*dawnFactor, nightFactor);
-  // the sky itself only turns a muted lavender, there is no orange or red
-  s.zenith = mix(s.zenith, DC_DAWN_ZENITH_COL, dawnFactor);
-  s.horizon = mix(s.horizon, DC_DAWN_HORIZON_COL, dawnFactor);
+  // light of the low sun: strongest while the sun is on the horizon, almost gone at night
+  float lowSun = 1.0 - env.dayFactor*env.dayFactor;
+  lowSun *= lowSun*lowSun;
+  lowSun *= mix(1.0, lowSun*lowSun, nightFactor);
 
   // detection reports full rain under water, so it is masked here
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
@@ -38,15 +40,16 @@ dc_skycolor dcSkyColors(dc_environment env) {
   s.zenith = mix(s.zenith, DC_RAIN_ZENITH_COL*zh, rainMix);
   s.horizon = mix(s.horizon, DC_RAIN_HORIZON_COL*hh, rainMix);
 
-  s.sunlight = DC_DAWN_SUNLIGHT_COL;
-  s.dawn = dawnFactor*(1.0 - rainMix);
+  s.sunlight = DC_SUNLIGHT_COL;
+  // there is no sunlight once the sun is below the horizon
+  s.sunlightAmount = lowSun*dcGlowVisibility(env.sunDir.y)*(1.0 - rainMix);
   s.sunDir = env.sunDir;
 
   if (env.underwater) {
     vec3 underwaterFog = env.fogCol*env.fogCol*DC_UNDERWATER_TINT;
     s.zenith = mix(2.0*underwaterFog, underwaterFog*zh, 0.8);
     s.horizon = mix(2.0*underwaterFog, underwaterFog*hh, 0.8);
-    s.dawn = 0.0;
+    s.sunlightAmount = 0.0;
   }
 
   return s;
@@ -64,17 +67,12 @@ vec3 dcRenderSky(dc_skycolor s, vec3 viewDir) {
   // the light of the sun only shows on the horizon around it, fading out softly
   float nearSun = smoothstep(0.3, 1.0, dot(viewDir, s.sunDir));
   nearSun *= nearSun;
-  vec3 horizon = mix(s.horizon, s.sunlight, s.dawn*nearSun);
+  vec3 horizon = mix(s.horizon, s.sunlight, s.sunlightAmount*nearSun);
 
   vec3 sky = mix(s.zenith, horizon, gradient);
 
   // the zenith is darker than the horizon
   return sky*(0.5 + 0.5*gradient);
-}
-
-// light below the horizon is gone
-float dcGlowVisibility(float lightHeight) {
-  return smoothstep(-0.08, 0.12, lightHeight);
 }
 
 // angular radius of the visible disc inside the sun and moon quad, for size 1.0

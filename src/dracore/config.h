@@ -13,13 +13,12 @@
 // Sky colors, zenith and horizon only (linear, before color correction)
 #define DC_DAY_ZENITH_COL     vec3(0.3, 0.9, 2.0)
 #define DC_DAY_HORIZON_COL    vec3(1.0, 1.6, 1.8)
-// Dawn has no colored sky of its own: a muted lavender sky, and the pale warm
-// light of the sun that only shows on the horizon around it
-#define DC_DAWN_ZENITH_COL    vec3(1.77, 1.77, 2.86)
-#define DC_DAWN_HORIZON_COL   vec3(1.38, 1.30, 1.79)
-#define DC_DAWN_SUNLIGHT_COL  vec3(5.2, 4.2, 1.5)
-#define DC_NIGHT_ZENITH_COL   vec3(0.008, 0.048, 0.08)
-#define DC_NIGHT_HORIZON_COL  vec3(0.02, 0.06, 0.1)
+// Sunrise and sunset do not tint the sky. The only change is the pale light of
+// the low sun, which shows on the horizon around the sun
+#define DC_SUNLIGHT_COL       vec3(5.2, 4.2, 1.5)
+// Night: a deep navy zenith under a lighter, soft blue horizon
+#define DC_NIGHT_ZENITH_COL   vec3(0.0148, 0.0261, 0.0884)
+#define DC_NIGHT_HORIZON_COL  vec3(0.0307, 0.0460, 0.1066)
 #define DC_RAIN_ZENITH_COL    vec3(0.47, 0.51, 0.56)
 #define DC_RAIN_HORIZON_COL   vec3(0.6, 0.6, 0.6)
 #define DC_SKY_RAIN_MIX       0.9    // 0.0 no change ~ 1.0 fully overcast in rain
