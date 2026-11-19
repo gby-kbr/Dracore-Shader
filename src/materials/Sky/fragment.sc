@@ -25,6 +25,7 @@ void main() {
 
     dc_skycolor skyColors = dcSkyColors(env);
     vec3 sky = dcRenderSky(skyColors, viewDir);
+    sky += dcSunMoonGlow(viewDir, env);
 
     gl_FragColor = vec4(dcColorCorrection(sky), 1.0);
 #else

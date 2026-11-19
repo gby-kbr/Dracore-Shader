@@ -72,4 +72,34 @@ vec3 dcRenderSky(dc_skycolor s, vec3 viewDir) {
   return sky*(0.5 + 0.5*gradient);
 }
 
+// light below the horizon is gone
+float dcGlowVisibility(float lightHeight) {
+  return smoothstep(-0.08, 0.12, lightHeight);
+}
+
+// angular radius of the visible disc inside the sun and moon quad, for size 1.0
+// (the disc is 25% of the quad: 0.25 * 70 / 300)
+#define DC_SUNMOON_DISC_RADIUS 0.0583
+
+// Soft halo around the sun and the moon: a bright core fading into a wide faint
+// glow. Added to the sky before color correction. The light of the sun stays
+// pale and only warms a little at sunrise and sunset.
+vec3 dcSunMoonGlow(vec3 dir, dc_environment env) {
+  float day = smoothstep(0.0, 0.4, env.dayFactor);
+  float night = 1.0 - smoothstep(-0.22, 0.0, env.dayFactor);
+  float twilight = clamp(1.0 - day - night, 0.0, 1.0);
+
+  float sunAngle = sqrt(2.0*max(1.0 - dot(dir, env.sunDir), 0.0))/(DC_SUNMOON_DISC_RADIUS*DC_SUN_SIZE);
+  float moonAngle = sqrt(2.0*max(1.0 - dot(dir, env.moonDir), 0.0))/(DC_SUNMOON_DISC_RADIUS*DC_MOON_SIZE);
+  float sunGlow = exp(-sunAngle*1.1)*0.45 + exp(-sunAngle*0.22)*0.14;
+  float moonGlow = exp(-moonAngle*1.2)*0.30 + exp(-moonAngle*0.25)*0.08;
+
+  vec3 sunCol = mix(vec3(1.0, 0.95, 0.85), vec3(1.0, 0.88, 0.66), twilight*0.6);
+  vec3 glow = sunCol*sunGlow*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
+            + vec3(0.55, 0.68, 1.0)*moonGlow*dcGlowVisibility(env.moonDir.y)*night;
+
+  float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
+  return glow*DC_SUNMOON_GLOW*(1.0 - 0.8*rain);
+}
+
 #endif

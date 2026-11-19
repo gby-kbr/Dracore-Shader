@@ -8,5 +8,6 @@
 #include "functions/tonemap.h"
 #include "functions/detection.h"
 #include "functions/sky.h"
+#include "functions/sunmoon.h"
 
 #endif

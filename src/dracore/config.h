@@ -25,6 +25,11 @@
 #define DC_SKY_RAIN_MIX       0.9    // 0.0 no change ~ 1.0 fully overcast in rain
 #define DC_UNDERWATER_TINT    vec3(0.9, 1.0, 0.9) // sky tint when underwater
 
+// Sun and moon
+#define DC_SUN_SIZE       1.0   // 0.3 tiny ~ 4.0 massive
+#define DC_MOON_SIZE      1.0   // 0.3 tiny ~ 4.0 massive
+#define DC_SUNMOON_GLOW   1.0   // 0.0 none ~ 2.0 strong, the soft glow around the sun and the moon
+
 // Sun and moon path (degrees)
 #define DC_SUN_PATH_YAW    15.0
 #define DC_MOON_PATH_YAW   17.0
