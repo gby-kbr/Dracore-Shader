@@ -15,8 +15,8 @@ struct dc_environment {
 };
 
 bool dcDetectEnd(vec3 FOG_COLOR) {
-  // the End fog is set in fogs/the_end_fog_setting.json to a color only the End has: red equals green,
-  // which the sky of the overworld never does at this brightness (DC_END_FOG_COL)
+  // the End fog is set in fogs/the_end_fog_setting.json to one exact color that the overworld
+  // never has (DC_END_FOG_COL)
   vec3 d = abs(FOG_COLOR - DC_END_FOG_COL);
   return max(max(d.r, d.g), d.b) < 0.006;
 }

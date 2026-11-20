@@ -89,7 +89,7 @@
 #define DC_WIND_DIR      vec2(0.912, 0.410) // direction of the wind, the same as the drift of the mist
 
 // The End
-#define DC_END_FOG_COL     vec3(0.122, 0.122, 0.239) // must match fog_color #1F1F3D in mcpack/fogs/the_end_fog_setting.json, it also detects the End (keep red equal to green)
+#define DC_END_FOG_COL     vec3(0.549, 0.800, 1.000) // must match fog_color #8CCCFF in mcpack/fogs/the_end_fog_setting.json, it also detects the End (the color must match to 0.006)
 #define DC_END_SKY_BRIGHTNESS 1.0 // 0.5 dark ~ 2.0 bright, the End sky panorama
 #define DC_END_AMBIENT     1.0   // 0.8 dark ~ 2.2 bright, the light on the islands of the End
 #define DC_END_AMBIENT_COL vec3(0.88, 0.90, 1.10) // soft blue, the color of the End sky and fog
