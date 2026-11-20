@@ -77,10 +77,10 @@ void main() {
     // light fog, so the drops also fade into it; elsewhere it is the vanilla fog
     float fogIntensity = calculateFogIntensity(position.z, FogAndDistanceControl.z, FogAndDistanceControl.x, FogAndDistanceControl.y);
     vec4 fog = vec4(FogColor.rgb*fogIntensity, 1.0 - fogIntensity);
-    dc_environment env = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+    dc_environment env = dcDetectEnvironmentLite(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
     if (!(env.underwater || env.nether || env.end)) {
         vec3 camPos = mul(u_invView, vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-        fog = dcFog(worldSpacePosition - camPos, CameraPosition.xz, CameraPosition.y, 1.0, FogAndDistanceControl.z, ViewPositionAndTime.w, env, dcSkyColors(env));
+        fog = dcFogAir(worldSpacePosition - camPos, CameraPosition.y, 1.0, FogAndDistanceControl.z, env, dcSkyColors(env));
     }
 
     v_fog = fog;

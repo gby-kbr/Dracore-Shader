@@ -1,7 +1,7 @@
 {
   "name": "DcCloudNoise",
-  "register_slot": 0,
-  "binding_slot": 0,
+  "register_slot": 5,
+  "binding_slot": 5,
   "type": "texture2D",
   "precision": "mediump",
   "access": "readonly",

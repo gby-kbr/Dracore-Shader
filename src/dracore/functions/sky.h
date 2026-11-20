@@ -8,6 +8,14 @@ struct dc_skycolor {
   vec3 horizon; // day, night, rain or underwater
 };
 
+// colors with nothing set, for variables that are filled in only on some paths
+dc_skycolor dcEmptySkyColors() {
+  dc_skycolor s;
+  s.zenith = vec3_splat(0.0);
+  s.horizon = vec3_splat(0.0);
+  return s;
+}
+
 // light below the horizon is gone
 float dcGlowVisibility(float lightHeight) {
   return smoothstep(-0.08, 0.12, lightHeight);

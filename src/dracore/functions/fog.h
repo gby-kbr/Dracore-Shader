@@ -53,8 +53,12 @@ float dcGroundMist(vec2 camXZ, vec2 relXZ, float camY, float dirY, float dist, f
   float x = b*dist*dirY;
   float k = abs(x) < 0.001 ? 1.0 - 0.5*x : (1.0 - exp(-x))/x;
   float d0 = strength*exp(-b*max(camY - DC_FOG_BASE_HEIGHT, -10.0));
+  float lengthDepth = d0*dist*k;
+  if (lengthDepth < 0.002) {
+    return 0.0; // from high up or very close the mist is too thin to see, the noise is skipped
+  }
   float thickness = 0.5*(dcMistPatch(camXZ + relXZ*0.45, t) + dcMistPatch(camXZ + relXZ*0.9, t));
-  return min(d0*dist*k*thickness, 8.0);
+  return min(lengthDepth*thickness, 8.0);
 }
 
 // The fog as  color*fog.a + fog.rgb  (a: how much of the scene survives).
@@ -84,6 +88,19 @@ vec4 dcFog(vec3 relPos, vec2 camXZ, float camY, float skyLight, float renderDist
 
   float surviving = (1.0 - amount)*(1.0 - ground);
   return vec4(fogCol*(amount*(1.0 - ground)) + mistCol*ground, surviving);
+}
+
+// The same fog without the mist patches, for the rain and snow particles: there are many of them
+// and they do not need the noise.
+vec4 dcFogAir(vec3 relPos, float camY, float skyLight, float renderDist, dc_environment env, dc_skycolor sky) {
+  float dist = length(relPos);
+  vec3 dir = relPos/max(dist, 0.0001);
+  float rain = env.rainFactor;
+  float open = smoothstep(0.15, 0.75, skyLight);
+  float fog = 1.0 - exp(-dcFogOpticalDepth(camY, dir.y, dist, rain)*(0.3 + 0.7*open));
+  float amount = max(fog, smoothstep(0.75, 1.0, dist/max(renderDist, 1.0)));
+  vec3 fogCol = dcRenderSky(sky, dir)*(1.0 - DC_FOG_RAIN_DARKEN*rain);
+  return vec4(fogCol*amount, 1.0 - amount);
 }
 
 #endif

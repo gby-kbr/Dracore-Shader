@@ -80,4 +80,33 @@ dc_environment dcDetectEnvironment(float TIME_OF_DAY, vec3 FOG_COLOR, vec3 FOG_C
   return env;
 }
 
+// Only what the sky color needs, without the sun and moon directions. For the pixel shader, where
+// working out the sun path for every pixel would be a waste.
+dc_environment dcDetectEnvironmentLite(float TIME_OF_DAY, vec3 FOG_COLOR, vec3 FOG_CONTROL) {
+  dc_environment env;
+  env.end = dcDetectEnd(FOG_COLOR);
+  env.nether = dcDetectNether(FOG_COLOR, FOG_CONTROL.xy);
+  env.underwater = dcDetectUnderwater(FOG_COLOR, FOG_CONTROL.xy);
+  env.rainFactor = dcDetectRain(FOG_CONTROL.xyz);
+  env.fogCol = FOG_COLOR;
+  env.dayFactor = cos(2.0*DC_PI*TIME_OF_DAY);
+  env.sunDir = vec3_splat(0.0);
+  env.moonDir = vec3_splat(0.0);
+  return env;
+}
+
+// An environment with nothing set, for variables that are filled in only on some paths
+dc_environment dcEmptyEnvironment() {
+  dc_environment env;
+  env.end = false;
+  env.nether = false;
+  env.underwater = false;
+  env.rainFactor = 0.0;
+  env.dayFactor = 0.0;
+  env.sunDir = vec3_splat(0.0);
+  env.moonDir = vec3_splat(0.0);
+  env.fogCol = vec3_splat(0.0);
+  return env;
+}
+
 #endif

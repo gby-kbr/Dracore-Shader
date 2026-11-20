@@ -17,7 +17,7 @@ void main() {
 #ifndef INSTANCING
     vec3 viewDir = normalize(v_worldPos);
 
-    dc_environment env;
+    dc_environment env = dcEmptyEnvironment();
     env.end = false;
     env.nether = false;
     env.underwater = v_envParams.x > 0.5;

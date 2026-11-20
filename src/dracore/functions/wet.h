@@ -35,8 +35,11 @@ vec3 dcWetSurface(vec3 col, vec3 gPos, vec3 normal, vec3 viewDir, float wet, flo
   }
 
   // drops hitting the film, near the camera only
-  float ring = dcRainRing(gPos.xz, t) + 0.6*dcRainRing(gPos.xz*1.7 + 7.3, t*1.3);
-  ring *= DC_WET_RIPPLES*wet*(1.0 - smoothstep(12.0, 30.0, camDist));
+  float ring = 0.0;
+  if (camDist < 30.0) {
+    ring = dcRainRing(gPos.xz, t) + 0.6*dcRainRing(gPos.xz*1.7 + 7.3, t*1.3);
+    ring *= DC_WET_RIPPLES*wet*(1.0 - smoothstep(12.0, 30.0, camDist));
+  }
 
   // the sky in the mirror direction, bent a little by the rings
   vec3 r = reflect(viewDir, normal);

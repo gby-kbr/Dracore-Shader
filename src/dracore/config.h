@@ -36,13 +36,9 @@
 #define DC_CLOUD_ROUGHNESS      0.26  // 0.0 smooth ~ 0.8 ragged, torn edges
 #define DC_CLOUD_DETAIL_SCALE   5.0   // 1.0 coarse ~ 5.0 fine detail
 #define DC_CLOUD_WIND           0.05 // 0.0 still ~ 0.05 fast
-#define DC_CLOUD_DEPTH          0.01 // 0.01 flat ~ 0.1 deep, how far the self shadow reaches
-#define DC_CLOUD_DEEP_SHADE     0.4  // 0.4 dark undersides ~ 1.0 same as the shade color
-#define DC_CLOUD_LIT_COL        vec3(3.5, 3.5, 3.5)    // side facing the sun
-#define DC_CLOUD_SHADE_COL      vec3(3.5, 3.5, 3.5) // soft grey-blue underside
+#define DC_CLOUD_LIT_COL        vec3(3.5, 3.5, 3.5)    // the color of the clouds by day
 #define DC_CLOUD_HORIZON_TINT   0.6   // 0.0 own colors ~ 1.0 fully the color of the horizon
 #define DC_CLOUD_NIGHT_LIT_COL  vec3(0.05, 0.07, 0.14)
-#define DC_CLOUD_NIGHT_SHADE_COL vec3(0.022, 0.034, 0.08)
 #define DC_CLOUD_RAIN_DARK      0.1   // 0.3 stormy dark ~ 1.0 bright grey
 
 // Water (pure clear water with thin waves)

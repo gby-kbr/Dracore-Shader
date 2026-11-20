@@ -76,8 +76,8 @@ void main() {
     bool isWater = v_waterInfo.y > 0.5;
     bool underwater = v_waterInfo.z > 0.5;
 
-    dc_environment env;
-    dc_skycolor skyColors;
+    dc_environment env = dcEmptyEnvironment();
+    dc_skycolor skyColors = dcEmptySkyColors();
     if (isWater || underwater) {
         env = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
         skyColors = dcSkyColors(env);
@@ -136,7 +136,7 @@ void main() {
 #if defined(OPAQUE) && !defined(SEASONS)
     // rain wets every open surface, flat ground and slopes alike
     if (v_worldPosition.w > 0.01) {
-        dc_environment wetEnv = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+        dc_environment wetEnv = dcDetectEnvironmentLite(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
         vec3 wetFrom = v_worldPos - ViewPositionAndTime.xyz;
         float wetDist = length(wetFrom);
         vec3 wetNormal = normalize(cross(dFdx(v_worldPos), dFdy(v_worldPos)));
