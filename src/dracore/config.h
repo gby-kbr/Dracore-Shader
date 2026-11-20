@@ -80,6 +80,14 @@
 #define DC_MIST_BRIGHTNESS   0.6   // 0.0 same as the sky ~ 1.5 whiter, brightness of the mist by day
 #define DC_MIST_SUNLIGHT     0.6   // 0.0 none ~ 2.0 strong, the glow of the sun in the mist
 
+// Wind, plants and lanterns
+#define DC_PLANT_WAVE    0.05  // 0.02 gentle ~ 0.2 strong, how far grass, leaves and vines lean
+#define DC_LANTERN_WAVE  0.16  // 0.05 subtle ~ 0.4 large, how much hanging lanterns swing
+#define DC_WAVE_SPEED    2.0   // 0.5 slow ~ 5.0 fast, speed of the wind
+#define DC_WAVE_RAIN     0.6   // 0.0 same ~ 2.0 stormy, how much stronger the wind is in rain
+#define DC_WAVE_RANGE    16.0  // 8.0 near ~ 48.0 far, blocks around the camera that move
+#define DC_WIND_DIR      vec2(0.912, 0.410) // direction of the wind, the same as the drift of the mist
+
 // The End
 #define DC_END_FOG_COL     vec3(0.518, 0.518, 0.667) // must match fog_color #8484AA in mcpack/fogs/the_end_fog_setting.json, it also detects the End (keep red equal to green)
 #define DC_END_SKY_BRIGHTNESS 1.0 // 0.5 dark ~ 2.0 bright, the End sky panorama

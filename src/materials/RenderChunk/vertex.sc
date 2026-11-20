@@ -17,6 +17,8 @@ uniform vec4 TimeOfDay;
 uniform vec4 CameraPosition;
 uniform vec4 MeshContext;
 
+SAMPLER2D_AUTOREG(s_MatTexture);
+
 void main() {
 #ifdef INSTANCING
     mat4 model = mtxFromCols(i_data1, i_data2, i_data3, vec4(0.0, 0.0, 0.0, 1.0));
@@ -34,6 +36,30 @@ void main() {
     color = vec4_splat(1.0);
 #else
     color = a_color0;
+#endif
+
+#if defined(ALPHA_TEST) && !defined(RENDER_AS_BILLBOARDS) && !defined(INSTANCING)
+    // swaying plants and swinging lanterns, only near the camera
+    float waveDist = length(ViewPositionAndTime.xyz - worldPos);
+    if (waveDist < DC_WAVE_RANGE) {
+        vec3 gPos = worldPos + CameraPosition.xyz;
+        vec3 bPos = fract(a_position.xyz);
+        vec2 uvTile = 2.0*a_texcoord0.xy;
+        uvTile = fract(uvTile) + ((floor(uvTile) - 0.5)/16384.0);
+        float texPosY = fract(uvTile.y*float(textureSize(s_MatTexture, 0).y)/16.0);
+        vec2 waveLight = fract(a_texcoord1.y*vec2(256.0, 4096.0));
+        float waveRain = dcDetectRain(FogAndDistanceControl.xyz);
+        if (dcDetectUnderwater(FogColor.rgb, FogAndDistanceControl.xy) || dcDetectNether(FogColor.rgb, FogAndDistanceControl.xy)) {
+            waveRain = 0.0;
+        }
+#ifdef SEASONS
+        bool isTree = true;
+#else
+        bool isTree = (a_color0.r != a_color0.g || a_color0.r != a_color0.b) && (bPos.x + bPos.y + bPos.z < 0.001) || a_color0.a == 0.0;
+#endif
+        dcWavePlants(worldPos, gPos, bPos, a_color0, texPosY, waveLight.y*waveLight.y, waveDist, isTree, ViewPositionAndTime.w, waveRain);
+        dcWaveLantern(worldPos, gPos, bPos, texPosY, waveLight.x*waveLight.x, waveDist, ViewPositionAndTime.w, waveRain);
+    }
 #endif
 
     vec4 fogAndDist = FogAndDistanceControl;

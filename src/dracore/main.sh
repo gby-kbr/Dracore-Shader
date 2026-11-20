@@ -14,5 +14,6 @@
 #include "functions/underwater.h"
 #include "functions/endsky.h"
 #include "functions/fog.h"
+#include "functions/wave.h"
 
 #endif
