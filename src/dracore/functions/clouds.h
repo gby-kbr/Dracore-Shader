@@ -18,22 +18,12 @@ float dcCloudDensityField(vec4 n, vec4 d, vec4 d2) {
   return base + (d.g - 0.5)*DC_CLOUD_ROUGHNESS + (d2.g - 0.5)*DC_CLOUD_ROUGHNESS*0.5;
 }
 
-// returns rgb (before color correction) and coverage in alpha.
-// The layer lies at a fixed height in the world (DC_CLOUD_HEIGHT), so it stays where it is in the sky when the
-// camera moves: flying towards the clouds brings them closer, they do not run away upwards. The clouds are lit
-// evenly, so there is one color and the cost is three reads of the noise texture.
-// camPos: camera position in the world. skyGlow: the glow of the sun or moon in this direction, it tints the clouds near it
-vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyColors, vec3 camPos, vec3 skyGlow, float time) {
-  float up = dir.y;
-  float horizonFade = smoothstep(0.0, 0.22, up);
-  if (horizonFade <= 0.0) return vec4(0.0, 0.0, 0.0, 0.0);
-
-  // where the ray meets the flat layer, in blocks, then in the units of the noise (128 blocks is one unit, so the
-  // clouds look the same as before for a camera 128 blocks below the layer). The farther from the zenith, the
-  // more squeezed the clouds look
-  // never closer than 128 blocks: flying up to the layer would blow the clouds up and make them look frozen overhead
-  float toLayer = max(DC_CLOUD_HEIGHT - camPos.y, 128.0);
-  vec2 uv = (camPos.xz + dir.xz*toLayer/(up + 0.12) + vec2(1.0, 0.35)*time*DC_CLOUD_WIND)*(1.0/128.0);
+// Clouds at one spot of the layer. worldXZ: the place in the world (blocks), skyGlow: the glow of the sun or
+// moon in this direction, it tints the clouds near it. Returns rgb (before color correction) and coverage in alpha.
+// The clouds are lit evenly, so there is one color and the cost is three reads of the noise texture.
+vec4 dcCloudsAt(sampler2D noiseTex, vec2 worldXZ, dc_environment env, dc_skycolor skyColors, vec3 skyGlow, float time) {
+  // 128 blocks is one unit of the noise
+  vec2 uv = (worldXZ + vec2(1.0, 0.35)*time*DC_CLOUD_WIND)*(1.0/128.0);
   vec2 p = uv*DC_CLOUD_SCALE;
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
@@ -50,7 +40,7 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyC
   float density = smoothstep(edge, edge + DC_CLOUD_SOFTNESS, dcCloudDensityField(shape, detail, detail2));
 
   // color, linear and before color correction. By day the clouds take the color of the
-  // horizon with the brightness kept; the horizon already includes rain, so rain clouds turn grey on their own
+  // horizon with the brightness kept
   vec3 col = mix(DC_CLOUD_NIGHT_LIT_COL, DC_CLOUD_LIT_COL, 1.0 - nightFactor);
   vec3 horizonTint = skyColors.horizon/max(dcLuminance(skyColors.horizon), 0.0001);
   col *= mix(vec3_splat(1.0), horizonTint, DC_CLOUD_HORIZON_TINT*(1.0 - nightFactor));
@@ -61,11 +51,24 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyC
   vec3 glowCol = DC_SUNGLOW_COL/max(dcLuminance(DC_SUNGLOW_COL), 0.0001);
   col = mix(col, col*glowCol, tint) + skyGlow*(0.3*DC_CLOUD_GLOW_TINT);
 
-  // rain clouds are flat and grey
-  float grey = dot(col, vec3(0.33, 0.33, 0.33));
-  col = mix(col, vec3_splat(grey)*DC_CLOUD_RAIN_DARK, rain*0.8);
+  // in rain the clouds are the color of the grey rain sky
+  col = mix(col, skyColors.horizon*DC_CLOUD_RAIN_BRIGHTNESS, rain);
 
-  return vec4(col, density*horizonFade);
+  return vec4(col, density);
+}
+
+// The same clouds seen in the sky: where the ray meets the flat layer at DC_CLOUD_HEIGHT in the world, so the
+// layer stays where it is when the camera moves and can be flown up to. Seen from above the layer the sky
+// draws nothing, the sheet of the Clouds material does.
+// camPos: camera position in the world
+vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyColors, vec3 camPos, vec3 skyGlow, float time) {
+  float toLayer = DC_CLOUD_HEIGHT - camPos.y;
+  float up = dir.y;
+  float horizonFade = smoothstep(0.0, 0.22, up);
+  if (horizonFade <= 0.0 || toLayer <= 0.0) return vec4(0.0, 0.0, 0.0, 0.0);
+
+  vec4 c = dcCloudsAt(noiseTex, camPos.xz + dir.xz*(toLayer/up), env, skyColors, skyGlow, time);
+  return vec4(c.rgb, c.a*horizonFade);
 }
 
 #endif

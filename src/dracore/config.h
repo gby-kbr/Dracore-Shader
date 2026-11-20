@@ -41,9 +41,10 @@
 #define DC_CLOUD_LIT_COL        vec3(3.5, 3.5, 3.5)    // the color of the clouds by day
 #define DC_CLOUD_HORIZON_TINT   0.6   // 0.0 own colors ~ 1.0 fully the color of the horizon
 #define DC_CLOUD_NIGHT_LIT_COL  vec3(0.05, 0.07, 0.14)
-#define DC_CLOUD_RAIN_DARK      0.1   // 0.3 stormy dark ~ 1.0 bright grey
+#define DC_CLOUD_RAIN_BRIGHTNESS 0.9 // 0.6 dark ~ 1.2 bright, rain clouds against the rain sky (1.0 the same as the sky)
 
 // Water (pure clear water with thin waves)
+#define DC_WATER_SURFACE_DIM    0.5   // 0.2 dark ~ 1.0 as bright as the sky mirror, only the surface seen from above, not under the water
 #define DC_WATER_MIRROR         0.35  // 0.0 none ~ 1.0 mirror, how much the water reflects the sky, the same at every view angle
 #define DC_WATER_WAVE_SHADE     0.25  // 0.0 none ~ 1.0 strong, waves as light and dark ripples, seen looking down too
 #define DC_WATER_TRANSPARENCY   1.0   // 0.0 invisible ~ 1.0 vanilla opacity

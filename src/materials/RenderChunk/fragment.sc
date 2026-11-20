@@ -118,6 +118,9 @@ void main() {
         }
 
         waterReflectionAmount = dcWaterShade(diffuse, v_color0.a);
+        if (!underwater) {
+            waterReflectionAmount *= DC_WATER_SURFACE_DIM;
+        }
 
         // the waves as light and dark ripples, so they show looking straight down as well
         if (abs(faceNormal.y) > 0.5) {

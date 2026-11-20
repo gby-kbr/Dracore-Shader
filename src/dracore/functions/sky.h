@@ -82,7 +82,7 @@ vec3 dcSunMoonGlow(vec3 dir, dc_environment env) {
   float low = 1.0 - smoothstep(0.0, 0.5, env.sunDir.y);
   // light has no sharp edge: a soft core, then two slowly thinning tails (1/(1 + x^2), halfway at 5 and
   // 18 disc radii) that fade into the whole sky without any visible rim
-  float radial = 1.2*exp(-sunAngle*0.9) + 0.9/(1.0 + 0.04*sunAngle*sunAngle) + 0.45/(1.0 + 0.0031*sunAngle*sunAngle);
+  float radial = 0.72*exp(-sunAngle*0.9) + 0.54/(1.0 + 0.04*sunAngle*sunAngle) + 0.27/(1.0 + 0.0031*sunAngle*sunAngle);
 
   // haze along the horizon in the direction of the sun, wide
   vec2 viewFlat = dir.xz/max(length(dir.xz), 0.0001);
@@ -91,16 +91,18 @@ vec3 dcSunMoonGlow(vec3 dir, dc_environment env) {
   aroundSun *= aroundSun;
   float up = max(dir.y, 0.0);
   float fade = 1.0 - up*up;
-  float horizonHaze = 1.4*aroundSun*fade*fade*low;
+  float horizonHaze = 0.85*aroundSun*fade*fade*low;
 
   float sunGlow = (radial*(0.35 + 0.65*low) + horizonHaze)*(1.0 + low);
   float moonGlow = exp(-moonAngle*1.2)*0.30 + exp(-moonAngle*0.25)*0.08 + 0.06/(1.0 + 0.05*moonAngle*moonAngle);
 
-  vec3 glow = DC_SUNGLOW_COL*sunGlow*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
+  // the sun glows only at dawn and dusk, not when it is high
+  float dawn = 1.0 - smoothstep(0.05, 0.35, env.sunDir.y);
+  vec3 glow = DC_SUNGLOW_COL*sunGlow*dawn*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
             + vec3(0.55, 0.68, 1.0)*moonGlow*dcGlowVisibility(env.moonDir.y)*night;
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
-  return glow*DC_SUNMOON_GLOW*(1.0 - 0.8*rain);
+  return glow*DC_SUNMOON_GLOW*(1.0 - rain);
 }
 
 
@@ -120,7 +122,7 @@ vec3 dcSunMoonDisc(vec3 dir, dc_environment env, float sunRadiance, float moonRa
   float moon = smoothstep(moonOuter, moonInner, dot(dir, env.moonDir))*smoothstep(-0.06, 0.0, env.moonDir.y);
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
-  return (vec3(1.15, 1.10, 1.00)*(sun*sunRadiance) + vec3(0.62, 0.70, 0.90)*(moon*moonRadiance))*(1.0 - 0.8*rain);
+  return (vec3(1.15, 1.10, 1.00)*(sun*sunRadiance) + vec3(0.62, 0.70, 0.90)*(moon*moonRadiance))*(1.0 - rain);
 }
 
 #endif
