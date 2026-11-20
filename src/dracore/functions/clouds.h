@@ -31,7 +31,8 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyC
   // where the ray meets the flat layer, in blocks, then in the units of the noise (128 blocks is one unit, so the
   // clouds look the same as before for a camera 128 blocks below the layer). The farther from the zenith, the
   // more squeezed the clouds look
-  float toLayer = max(DC_CLOUD_HEIGHT - camPos.y, 20.0);
+  // never closer than 128 blocks: flying up to the layer would blow the clouds up and make them look frozen overhead
+  float toLayer = max(DC_CLOUD_HEIGHT - camPos.y, 128.0);
   vec2 uv = (camPos.xz + dir.xz*toLayer/(up + 0.12) + vec2(1.0, 0.35)*time*DC_CLOUD_WIND)*(1.0/128.0);
   vec2 p = uv*DC_CLOUD_SCALE;
 

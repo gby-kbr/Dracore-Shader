@@ -109,16 +109,15 @@ vec3 dcSunMoonGlow(vec3 dir, dc_environment env) {
 // dir: normalized direction of the ray. sunRadiance and moonRadiance set how
 // bright each disc is
 vec3 dcSunMoonDisc(vec3 dir, dc_environment env, float sunRadiance, float moonRadiance) {
-  float night = 1.0 - smoothstep(-0.22, 0.0, env.dayFactor);
-
   // the soft edge is the same share of the disc as in the quad
   float sunOuter = cos(DC_SUNMOON_DISC_RADIUS*DC_SUN_SIZE);
   float sunInner = cos(DC_SUNMOON_DISC_RADIUS*DC_SUN_SIZE*0.767);
   float moonOuter = cos(DC_SUNMOON_DISC_RADIUS*DC_MOON_SIZE);
   float moonInner = cos(DC_SUNMOON_DISC_RADIUS*DC_MOON_SIZE*0.767);
 
-  float sun = smoothstep(sunOuter, sunInner, dot(dir, env.sunDir))*dcGlowVisibility(env.sunDir.y)*(1.0 - night);
-  float moon = smoothstep(moonOuter, moonInner, dot(dir, env.moonDir))*dcGlowVisibility(env.moonDir.y)*night;
+  // like the real quads: each disc is there as long as it is above the horizon, the same at dawn and dusk
+  float sun = smoothstep(sunOuter, sunInner, dot(dir, env.sunDir))*smoothstep(-0.06, 0.0, env.sunDir.y);
+  float moon = smoothstep(moonOuter, moonInner, dot(dir, env.moonDir))*smoothstep(-0.06, 0.0, env.moonDir.y);
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
   return (vec3(1.15, 1.10, 1.00)*(sun*sunRadiance) + vec3(0.62, 0.70, 0.90)*(moon*moonRadiance))*(1.0 - 0.8*rain);
