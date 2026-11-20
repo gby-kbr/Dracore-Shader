@@ -7,7 +7,8 @@ SAMPLER2D_AUTOREG(s_SkyTexture);
 uniform vec4 SkyColor;
 
 void main() {
-    vec4 color = SkyColor * texture2D(s_SkyTexture, v_texcoord0);
-    color.rgb = dcColorCorrection(color.rgb);
-    gl_FragColor = color;
+    vec3 dir = normalize(v_worldPos);
+    // level 0 only: mip selection from the atan2 derivatives would draw a line at the seam
+    vec3 tex = texture2DLod(s_SkyTexture, dcEndSkyUV(dir), 0.0).rgb;
+    gl_FragColor = vec4(dcEndSkyColor(tex), 1.0);
 }

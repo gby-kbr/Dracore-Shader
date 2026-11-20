@@ -15,4 +15,4 @@ vec2          v_lightmapUV              : TEXCOORD1;
 centroid vec2 v_texcoord0               : TEXCOORD0;
 vec3          v_worldPos                : TEXCOORD3;
 vec4          v_worldPosition           : COLOR3;
-vec4          v_waterInfo               : TEXCOORD4; // x: light added under water, y: is water, z: under water
+vec4          v_waterInfo               : TEXCOORD4; // x: light added under water, y: is water, z: under water, w: in the End

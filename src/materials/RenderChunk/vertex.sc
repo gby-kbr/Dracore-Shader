@@ -83,7 +83,7 @@ void main() {
 #endif
 
     v_clipPosition = position;
-    v_waterInfo = vec4(lightAdd, isWater, underwater, 0.0);
+    v_waterInfo = vec4(lightAdd, isWater, underwater, dcDetectEnd(FogColor.rgb) ? 1.0 : 0.0);
     v_worldPosition = vec4(worldPos, 1.0);
     v_color0 = color;
     v_ditheringAndMaskTinting = ditheringAndMaskTinting;

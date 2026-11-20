@@ -123,6 +123,10 @@ void main() {
 #endif
 
     vec3 light = texture2D(s_LightMapTexture, v_lightmapUV).rgb;
+    // the End has no sky light, the vanilla lightmap there is dark and green: a soft ambient takes its place
+    if (v_waterInfo.w > 0.5) {
+        light = mix(DC_END_AMBIENT_COL*DC_END_AMBIENT, light*DC_END_AMBIENT_COL, smoothstep(0.1, 0.8, v_lightmapUV.x)*0.5);
+    }
     if (underwater) {
         light = (light + v_waterInfo.x)*dcUnderwaterTint(skyColors.horizon, v_lightmapUV.y*v_lightmapUV.y);
     }

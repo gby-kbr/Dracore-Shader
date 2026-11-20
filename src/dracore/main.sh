@@ -12,5 +12,6 @@
 #include "functions/clouds.h"
 #include "functions/water.h"
 #include "functions/underwater.h"
+#include "functions/endsky.h"
 
 #endif

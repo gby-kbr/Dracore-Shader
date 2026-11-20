@@ -65,6 +65,12 @@
 #define DC_UNDERWATER_SKY_VISIBILITY 1.0 // 0.0 no sky ~ 1.0 sun and clouds seen from under the water
 #define DC_UNDERWATER_SKY_WOBBLE     0.04 // 0.0 still ~ 0.15 wavy view of the sky
 
+// The End
+#define DC_END_FOG_COL     vec3(0.518, 0.518, 0.667) // must match fog_color #8484AA in mcpack/fogs/the_end_fog_setting.json, it also detects the End (keep red equal to green)
+#define DC_END_SKY_BRIGHTNESS 1.0 // 0.5 dark ~ 2.0 bright, the End sky panorama
+#define DC_END_AMBIENT     1.0   // 0.8 dark ~ 2.2 bright, the light on the islands of the End
+#define DC_END_AMBIENT_COL vec3(0.88, 0.90, 1.10) // soft blue, the color of the End sky and fog
+
 // Sun and moon path (degrees)
 #define DC_SUN_PATH_YAW    15.0
 #define DC_MOON_PATH_YAW   17.0
