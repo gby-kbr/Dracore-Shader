@@ -54,9 +54,6 @@ void main() {
         // mobs have no sky light, they are treated as standing in the open
         fog = dcFog(worldPosition - ViewPositionAndTime.xyz, CameraPosition.xz, CameraPosition.y, 1.0, FogControl.z, ViewPositionAndTime.w, fogEnv, dcSkyColors(fogEnv));
     }
-    if (fogEnv.end && !fogEnv.underwater) {
-        fog = dcEndFog(worldPosition - ViewPositionAndTime.xyz, FogControl.z);
-    }
 #endif
 
 #if defined(DEPTH_ONLY) || defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY_ALPHA_TEST)
