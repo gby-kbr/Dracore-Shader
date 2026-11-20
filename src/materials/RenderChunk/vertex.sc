@@ -13,6 +13,8 @@ uniform vec4 RenderChunkFogAlpha;
 uniform vec4 FogAndDistanceControl;
 uniform vec4 ViewPositionAndTime;
 uniform vec4 FogColor;
+uniform vec4 TimeOfDay;
+uniform vec4 CameraPosition;
 uniform vec4 MeshContext;
 
 void main() {
@@ -57,7 +59,13 @@ void main() {
 
     float camDist = length(ViewPositionAndTime.xyz - worldPos);
     float fogIntensity = clamp((((camDist / fogAndDist.z) + RenderChunkFogAlpha.x) - fogAndDist.x) / (fogAndDist.y - fogAndDist.x), 0.0, 1.0);
-    vec4 fog = vec4(FogColor.rgb, fogIntensity);
+    // the fog is handed to the pixels as  color*fog.a + fog.rgb. In the overworld it is Dracore's
+    // light fog, worked out here once per vertex; elsewhere it is the vanilla fog
+    vec4 fog = vec4(FogColor.rgb*fogIntensity, 1.0 - fogIntensity);
+    dc_environment fogEnv = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+    if (!(fogEnv.underwater || fogEnv.nether || fogEnv.end) && MeshContext.x < 0.5) {
+        fog = dcFog(worldPos - ViewPositionAndTime.xyz, CameraPosition.xz, CameraPosition.y, lightmapUV.y, fogAndDist.z, ViewPositionAndTime.w, fogEnv, dcSkyColors(fogEnv));
+    }
 
 #if defined(TRANSPARENT)
     if (a_color0.a < 0.95) {

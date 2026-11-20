@@ -65,6 +65,21 @@
 #define DC_UNDERWATER_SKY_VISIBILITY 1.0 // 0.0 no sky ~ 1.0 sun and clouds seen from under the water
 #define DC_UNDERWATER_SKY_WOBBLE     0.04 // 0.0 still ~ 0.15 wavy view of the sky
 
+// Fog, overworld only
+#define DC_FOG_BASE_HEIGHT   63.0  // height in blocks where the fog is thickest (sea level)
+#define DC_FOG_DENSITY       0.003 // 0.0015 thin ~ 0.012 thick, light lost per block at the base height
+#define DC_FOG_FALLOFF       0.02  // 0.008 deep layer ~ 0.05 thin ground fog, thinning with height
+#define DC_FOG_RAIN          6.0   // 0.0 none ~ 12.0 very dense, extra fog in rain
+#define DC_FOG_RAIN_DARKEN   0.25  // 0.0 sky colored ~ 0.6 dark grey, how dark the fog gets in rain
+#define DC_MIST_DENSITY      0.003 // 0.0 none ~ 0.008 thick, low mist banks over water and ground
+#define DC_MIST_FALLOFF      0.08  // 0.05 deep layer ~ 0.25 thin layer hugging the ground
+#define DC_MIST_COVER        0.45  // 0.1 few patches ~ 0.9 almost everywhere
+#define DC_MIST_SCALE        0.03  // 0.01 huge banks ~ 0.1 small patches
+#define DC_MIST_WIND         2.5   // 0.0 still ~ 10.0 fast, how fast the banks drift
+#define DC_MIST_RAIN         1.0   // 0.0 none ~ 4.0 dense, extra mist in rain
+#define DC_MIST_BRIGHTNESS   0.6   // 0.0 same as the sky ~ 1.5 whiter, brightness of the mist by day
+#define DC_MIST_SUNLIGHT     0.6   // 0.0 none ~ 2.0 strong, the glow of the sun in the mist
+
 // The End
 #define DC_END_FOG_COL     vec3(0.518, 0.518, 0.667) // must match fog_color #8484AA in mcpack/fogs/the_end_fog_setting.json, it also detects the End (keep red equal to green)
 #define DC_END_SKY_BRIGHTNESS 1.0 // 0.5 dark ~ 2.0 bright, the End sky panorama

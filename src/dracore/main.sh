@@ -13,5 +13,6 @@
 #include "functions/water.h"
 #include "functions/underwater.h"
 #include "functions/endsky.h"
+#include "functions/fog.h"
 
 #endif

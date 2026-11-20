@@ -133,7 +133,7 @@ void main() {
     diffuse.rgb *= light;
     diffuse.rgb += waterReflection*waterReflectionAmount;
 
-    diffuse.rgb = mix(diffuse.rgb, FogColor.rgb, v_fog.a);
+    diffuse.rgb = diffuse.rgb*v_fog.a + v_fog.rgb; // fog, worked out in the vertex shader
 
     diffuse.rgb = dcColorCorrection(diffuse.rgb);
 
