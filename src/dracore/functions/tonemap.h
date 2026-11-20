@@ -31,21 +31,4 @@ vec3 dcColorCorrection(vec3 col) {
   return col;
 }
 
-// Inverse of dcColorCorrection, used to bring an already corrected color
-// (e.g. the fog color in the nether) back to linear space.
-// Reinhard-Jodie is identical to simple Reinhard for gray colors, so this
-// is exact for gray and an approximation for saturated colors.
-vec3 dcColorCorrectionInv(vec3 col) {
-  col = pow(col, vec3_splat(DC_GAMMA));
-
-  col = min(col, vec3_splat(0.999));
-  col = col / (1.0 - col);
-
-#ifdef DC_EXPOSURE
-  col /= DC_EXPOSURE;
-#endif
-
-  return col;
-}
-
 #endif

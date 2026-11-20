@@ -1,0 +1,29 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Dracore Shader",
+    "description": "Balanced and lightweight shader for Minecraft Bedrock.\nauthor : Goboyy22",
+    "uuid": "eb6d48dd-4b06-41f5-a6a5-4c2982c91e95",
+    "version": [
+      0,
+      1,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      26,
+      60
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "3921e530-a465-43ea-8b42-f5741fe52a53",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

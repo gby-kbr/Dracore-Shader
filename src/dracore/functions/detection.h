@@ -49,10 +49,6 @@ float dcDetectRain(vec3 FOG_CONTROL) {
   return val*val*(3.0 - 2.0*val);
 }
 
-float dcDetectDayFactor(vec3 FOG_COLOR) {
-  return min(dot(FOG_COLOR, vec3(0.5,0.7,0.5)), 1.0);
-}
-
 dc_environment dcCalculateSunParams(dc_environment env, float TIME_OF_DAY) {
   float t = 2.0 * DC_PI * TIME_OF_DAY;
   // The game's own sun rises in the east (+x). Newb mirrors this because its
