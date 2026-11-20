@@ -9,11 +9,15 @@ $output v_clipPosition, v_color0, v_fog, v_light, v_texcoord0, v_worldPos
 #include <MinecraftRenderer.Materials/DynamicUtil.dragonh>
 #include <MinecraftRenderer.Materials/FogUtil.dragonh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
+#include <dracore/main.sh>
 
 uniform vec4 OverlayColor;
 uniform vec4 TileLightColor;
 uniform vec4 FogColor;
 uniform vec4 FogControl;
+uniform vec4 ViewPositionAndTime;
+uniform vec4 TimeOfDay;
+uniform vec4 CameraPosition;
 uniform vec4 UVAnimation;
 uniform mat4 Bones[8];
 
@@ -40,7 +44,17 @@ void main() {
     vec4 position = jitterVertexPosition(worldPosition);
     float cameraDepth = position.z;
     float fogIntensity = calculateFogIntensity(cameraDepth, FogControl.z, FogControl.x, FogControl.y);
-    vec4 fog = vec4(FogColor.rgb, fogIntensity);
+
+    // the fog is handed to the pixels as  color*fog.a + fog.rgb. Mobs get the same light fog as the
+    // blocks, so they stand inside it; under water, in the Nether and in the End it is the vanilla fog
+    vec4 fog = vec4(FogColor.rgb*fogIntensity, 1.0 - fogIntensity);
+#if !(defined(DEPTH_ONLY) || defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY_ALPHA_TEST))
+    dc_environment fogEnv = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogControl.xyz);
+    if (!(fogEnv.underwater || fogEnv.nether || fogEnv.end)) {
+        // mobs have no sky light, they are treated as standing in the open
+        fog = dcFog(worldPosition - ViewPositionAndTime.xyz, CameraPosition.xz, CameraPosition.y, 1.0, FogControl.z, ViewPositionAndTime.w, fogEnv, dcSkyColors(fogEnv));
+    }
+#endif
 
 #if defined(DEPTH_ONLY) || defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY_ALPHA_TEST)
     v_texcoord0 = vec2_splat(0.0);

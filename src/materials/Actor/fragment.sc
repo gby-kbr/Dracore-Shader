@@ -64,7 +64,7 @@ void main() {
     }
 #endif
 
-    albedo.rgb = applyFog(albedo.rgb, v_fog.rgb, v_fog.a);
+    albedo.rgb = albedo.rgb*v_fog.a + v_fog.rgb; // fog, worked out in the vertex shader
 
     albedo.rgb = dcColorCorrection(albedo.rgb);
 
