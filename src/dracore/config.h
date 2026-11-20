@@ -88,6 +88,12 @@
 #define DC_WAVE_RANGE    16.0  // 8.0 near ~ 48.0 far, blocks around the camera that move
 #define DC_WIND_DIR      vec2(0.912, 0.410) // direction of the wind, the same as the drift of the mist
 
+// Wet ground, in the rain
+#define DC_WET_DARKEN     0.35  // 0.0 none ~ 0.6 soaked, how much darker wet ground is
+#define DC_WET_REFLECTION 0.6   // 0.0 matte ~ 1.0 mirror, how much wet ground mirrors the sky (weak looking down, strong at a low angle)
+#define DC_WET_RIPPLES    1.0   // 0.0 none ~ 2.0 many, the rings of the drops on the ground
+#define DC_WET_SIDES      0.5   // 0.0 only flat ground ~ 1.0 walls as wet as the ground, how wet the sides of blocks get
+
 // Rain and snow
 #define DC_RAIN_WIDTH    0.5   // 0.3 hair thin ~ 1.0 vanilla, how wide the rain streaks are
 #define DC_RAIN_OPACITY  0.6   // 0.3 faint ~ 1.0 solid, how see-through the rain is

@@ -15,5 +15,6 @@
 #include "functions/endsky.h"
 #include "functions/fog.h"
 #include "functions/wave.h"
+#include "functions/wet.h"
 
 #endif

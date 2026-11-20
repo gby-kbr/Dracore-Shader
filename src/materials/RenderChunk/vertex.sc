@@ -118,7 +118,12 @@ void main() {
 
     v_clipPosition = position;
     v_waterInfo = vec4(lightAdd, isWater, underwater, dcDetectEnd(FogColor.rgb) ? 1.0 : 0.0);
-    v_worldPosition = vec4(worldPos, 1.0);
+    // how wet the surface is: rain, on the places the sky can reach, only in the overworld
+    float wet = fogEnv.rainFactor*smoothstep(0.6, 0.85, lightmapUV.y);
+    if (fogEnv.underwater || fogEnv.nether || fogEnv.end) {
+        wet = 0.0;
+    }
+    v_worldPosition = vec4(worldPos, wet);
     v_color0 = color;
     v_ditheringAndMaskTinting = ditheringAndMaskTinting;
     v_fog = fog;

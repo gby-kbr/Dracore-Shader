@@ -133,6 +133,20 @@ void main() {
     diffuse.rgb *= light;
     diffuse.rgb += waterReflection*waterReflectionAmount;
 
+#if defined(OPAQUE) && !defined(SEASONS)
+    // rain wets every open surface, flat ground and slopes alike
+    if (v_worldPosition.w > 0.01) {
+        dc_environment wetEnv = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+        vec3 wetFrom = v_worldPos - ViewPositionAndTime.xyz;
+        float wetDist = length(wetFrom);
+        vec3 wetNormal = normalize(cross(dFdx(v_worldPos), dFdy(v_worldPos)));
+        if (dot(wetNormal, wetFrom) > 0.0) {
+            wetNormal = -wetNormal;
+        }
+        diffuse.rgb = dcWetSurface(diffuse.rgb, v_worldPos + CameraPosition.xyz, wetNormal, wetFrom/wetDist, v_worldPosition.w, v_lightmapUV.y, wetDist, time, dcSkyColors(wetEnv));
+    }
+#endif
+
     diffuse.rgb = diffuse.rgb*v_fog.a + v_fog.rgb; // fog, worked out in the vertex shader
 
     diffuse.rgb = dcColorCorrection(diffuse.rgb);
