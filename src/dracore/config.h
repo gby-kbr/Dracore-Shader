@@ -7,9 +7,8 @@
 */
 
 // Color correction
-#define DC_GAMMA 1.33     // 0.3 low ~ 2.0 high
-#define DC_EXPOSURE 1.3   // [toggle] 0.5 dark ~ 3.0 bright
-#define DC_SATURATION 1.0 // 0.0 as it is ~ 2.0 vivid, gives back the color the tonemap washes out (1.0: 1.5 times the color)
+#define DC_GAMMA 1.25     // 0.3 low ~ 2.0 high
+#define DC_EXPOSURE 1.6   // [toggle] 0.5 dark ~ 3.0 bright
 
 // Sky colors, zenith and horizon only (linear, before color correction)
 #define DC_DAY_ZENITH_COL     vec3(0.3, 0.9, 2.0)

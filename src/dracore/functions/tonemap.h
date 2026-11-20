@@ -28,9 +28,8 @@ vec3 dcColorCorrection(vec3 col) {
 
   col = pow(col, vec3_splat(1.0 / DC_GAMMA));
 
-  // the tonemap and the gamma wash the color out, this gives it back: the grey of the color is kept and the
-  // difference to it is made larger, DC_SATURATION 1.0 makes it 1.5 times larger
-  col = mix(vec3_splat(dcLuminance(col)), col, 1.0 + 0.5*DC_SATURATION);
+  // a light S-curve: deeper shadows and brighter highlights, so the day looks clear and vibrant without any saturation boost
+  col = mix(col, col*col*(3.0 - 2.0*col), 0.35);
 
   return col;
 }
