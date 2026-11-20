@@ -13,7 +13,8 @@
       "RenderChunk",
       "Sky",
       "Stars",
-      "SunMoon"
+      "SunMoon",
+      "Weather"
     ],
     "exclude_patterns": [
       ".*",

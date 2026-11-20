@@ -88,6 +88,13 @@
 #define DC_WAVE_RANGE    16.0  // 8.0 near ~ 48.0 far, blocks around the camera that move
 #define DC_WIND_DIR      vec2(0.912, 0.410) // direction of the wind, the same as the drift of the mist
 
+// Rain and snow
+#define DC_RAIN_WIDTH    0.5   // 0.3 hair thin ~ 1.0 vanilla, how wide the rain streaks are
+#define DC_RAIN_OPACITY  0.6   // 0.3 faint ~ 1.0 solid, how see-through the rain is
+#define DC_RAIN_SLANT    0.12  // 0.0 straight ~ 0.4 storm, how much the rain leans with the wind
+#define DC_SNOW_DRIFT    0.25  // 0.0 straight ~ 0.6 swirling, how much snow sways while it falls
+#define DC_WEATHER_SIZE  1.0   // 0.5 tiny ~ 2.0 large, size of rain and snow particles
+
 // The End
 #define DC_END_FOG_COL     vec3(0.549, 0.800, 1.000) // must match fog_color #8CCCFF in mcpack/fogs/the_end_fog_setting.json, it also detects the End (the color must match to 0.006)
 #define DC_END_SKY_BRIGHTNESS 1.0 // 0.5 dark ~ 2.0 bright, the End sky panorama
