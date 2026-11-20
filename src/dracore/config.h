@@ -90,6 +90,10 @@
 
 // The End
 #define DC_END_FOG_COL     vec3(0.518, 0.518, 0.667) // must match fog_color #8484AA in mcpack/fogs/the_end_fog_setting.json, it also detects the End (keep red equal to green)
+#define DC_END_FOG_DENSITY 0.0015 // 0.0 none ~ 0.01 hazy, how thick the End fog is, it is meant to be hardly seen
+#define DC_END_FOG_EDGE    0.8    // 0.5 early ~ 0.95 late, where the fog starts to close the edge of the render distance (fraction of it)
+#define DC_END_FOG_HORIZON vec3(0.20, 0.46, 0.95) // the color of the fog at the horizon, the same blue as the panorama
+#define DC_END_FOG_DEEP    vec3(0.03, 0.06, 0.15) // the color of the fog far above and below the horizon
 #define DC_END_SKY_BRIGHTNESS 1.0 // 0.5 dark ~ 2.0 bright, the End sky panorama
 #define DC_END_AMBIENT     1.0   // 0.8 dark ~ 2.2 bright, the light on the islands of the End
 #define DC_END_AMBIENT_COL vec3(0.88, 0.90, 1.10) // soft blue, the color of the End sky and fog

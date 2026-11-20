@@ -19,4 +19,21 @@ vec3 dcEndSkyColor(vec3 tex) {
   return vec3_splat(1.0) - exp(-2.9*pow(x, vec3_splat(1.32)));
 }
 
+// The fog of the End, made to be almost invisible: it has the color of the panorama in the
+// direction it is looking, so it melts into the sky instead of standing as a wall, it is very
+// thin, and it only closes the edge of the render distance. As  color*fog.a + fog.rgb,
+// worked out once per vertex.
+// relPos: from the camera to the surface, renderDist: in blocks
+vec4 dcEndFog(vec3 relPos, float renderDist) {
+  float dist = length(relPos);
+  float dirY = relPos.y/max(dist, 0.0001);
+  // bright blue haze at the horizon, deep blue above and below
+  vec3 lin = DC_END_FOG_HORIZON*exp(-6.0*abs(dirY)) + DC_END_FOG_DEEP;
+  vec3 col = dcEndSkyColor(lin);
+  float thin = 1.0 - exp(-DC_END_FOG_DENSITY*dist);
+  float edge = smoothstep(DC_END_FOG_EDGE, 1.0, dist/max(renderDist, 1.0));
+  float amount = max(thin, edge);
+  return vec4(col*amount, 1.0 - amount);
+}
+
 #endif

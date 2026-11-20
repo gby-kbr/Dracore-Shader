@@ -92,6 +92,9 @@ void main() {
     if (!(fogEnv.underwater || fogEnv.nether || fogEnv.end) && MeshContext.x < 0.5) {
         fog = dcFog(worldPos - ViewPositionAndTime.xyz, CameraPosition.xz, CameraPosition.y, lightmapUV.y, fogAndDist.z, ViewPositionAndTime.w, fogEnv, dcSkyColors(fogEnv));
     }
+    if (fogEnv.end && !fogEnv.underwater && MeshContext.x < 0.5) {
+        fog = dcEndFog(worldPos - ViewPositionAndTime.xyz, fogAndDist.z);
+    }
 
 #if defined(TRANSPARENT)
     if (a_color0.a < 0.95) {

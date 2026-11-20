@@ -4,22 +4,24 @@ import numpy as np
 from common import *
 
 import os
-BUMP = float(os.environ.get("BR_BUMP", "8"))
-COLDET = float(os.environ.get("BR_COLDET", "0.6"))
-EDGEAMP = float(os.environ.get("BR_EDGE", "0.35"))
-OPAC = float(os.environ.get("BR_OPAC", "28"))
-SHK = float(os.environ.get("BR_SHK", "1"))
+BUMP = float(os.environ.get("DC_BUMP", "2.5"))
+COLDET = float(os.environ.get("DC_COLDET", "0.6"))
+EDGEAMP = float(os.environ.get("DC_EDGE", "0.30"))
+OPAC = float(os.environ.get("DC_OPAC", "28"))
+SHK = float(os.environ.get("DC_SHK", "1.3"))
+SHADOW_DARK = float(os.environ.get("DC_SHADOW_DARK", "0.92"))   # 1.0: a fully blocked point gets no direct light at all
+VOLUME = float(os.environ.get("DC_VOLUME", "1.0"))           # strength of the light/shade modelling of the cloud tops
 
 def cloud_layer(W, H, rows, tiles, quality=1.0):
     """Returns (rgb, alpha) for the rows given, directions below the horizon only (others get alpha 0)."""
     d, la, lo = grid(W, H, rows)
     s = np.maximum(-d[..., 1], 1e-4)                       # how steeply the ray goes down
     below = d[..., 1] < -1e-5
-    A, TH = 1.0, 0.30                                       # depth of the cloud tops below the camera, thickness
+    A, TH = 1.0, float(os.environ.get('DC_THICK', '0.42'))                                       # depth of the cloud tops below the camera, thickness
     dpx = 2*np.pi/W                                         # angle of one pixel
-    steps = int(36*quality)
+    steps = int(48*quality)
     chainL, chainD = tiles
-    th, k = 0.30, float(os.environ.get('BR_K', '0.46'))
+    th, k = 0.30, float(os.environ.get('DC_K', '0.40'))
 
     # direction of the light from the black hole (horizontal part used for the shadow offset)
     L = np.array([np.cos(BH_EL)*np.sin(BH_AZ), np.sin(BH_EL), np.cos(BH_EL)*np.cos(BH_AZ)], np.float32)
@@ -87,10 +89,11 @@ def cloud_layer(W, H, rows, tiles, quality=1.0):
             lowB, _ = height(xz + Lxz[:, None, None]*sd_, low_only=True)
             HB = np.clip((lowB - th)/k, 0, 1)**0.8
             blocked = np.maximum(blocked, 0.8*np.clip((HB - (hs0 + sd_*climb*0.25))*3.0 + 0.05, 0, 1)*np.clip(HB*3.0, 0, 1))
-        shadow = 1 - 0.98*blocked
+        blocked = np.clip(blocked*1.1, 0, 1)**0.85              # denser shadows: the penumbra stays soft, the core goes dark
+        shadow = 1 - SHADOW_DARK*blocked
         lowN, _ = height(xz + Lxz[:, None, None]*0.045, low_only=True)
         HN = np.clip((lowN - th)/k, 0, 1)**0.8
-        slope = np.clip(0.60 + (Hc - HN)*12.0, 0.05, 1.7)    # surface facing the light is brighter
+        slope = np.clip(0.55 + (Hc - HN)*12.0*(0.6 + 0.8*VOLUME), 0.03, 1.9)    # surface facing the light is brighter
         # fine surface relief: the small bumps facing the light are bright, the ones facing away are dark
         fp_ = dist_top*dpx/s
         d1 = lambda p: sample_tile(chainD, (c37*p[0] - s37*p[1])*160.0 + 123.0, (s37*p[0] + c37*p[1])*160.0 - 77.0,
@@ -98,12 +101,13 @@ def cloud_layer(W, H, rows, tiles, quality=1.0):
         bump = np.clip(1.0 + (d1(xz) - d1(xz + Lxz[:, None, None]*0.006))*BUMP, 0.35, 1.6)
         lit = shadow*slope*bump
         top = np.clip(0.35*hf + 0.65*Hc, 0, 1)**0.7           # follows the smooth cloud height, not the noisy hit layer
-        amb = np.array([0.34, 0.45, 0.70], np.float32)*(0.55 + 0.45*top)[..., None]
+        occl = (1 - 0.45*VOLUME*depthin)*(0.45 + 0.55*shadow)             # valleys between the puffs and the cloud shade are darker
+        amb = np.array([0.34, 0.45, 0.70], np.float32)*((0.35 + 0.65*top)*occl)[..., None]
         skyl = np.array([1.00, 0.94, 0.84], np.float32)*(0.18 + 0.82*top**1.6)[..., None]*(1 - 0.75*depthin)[..., None]
-        skyl = skyl*(0.12 + 0.88*shadow)[..., None]
+        skyl = skyl*(0.07 + 0.93*shadow)[..., None]
         bh = np.array([1.00, 1.15, 1.55], np.float32)*((0.85 + 2.4*facing**2.0)*lit*(0.35 + 0.65*top))[..., None]
         cdet = 0.5 + (det - 0.5)*COLDET*(0.35 + 0.65*smoothstep(0.2, 0.75, s))   # fine tone of the surface, calmer at grazing angles
-        col = (amb*1.05*(0.75 + 0.25*bump)[..., None] + skyl*1.6 + bh*1.15)*(0.50 + 0.95*cdet)[..., None]
+        col = (amb*1.35*(0.75 + 0.25*bump)[..., None] + skyl*1.45 + bh*1.6)*(0.50 + 0.95*cdet)[..., None]
         rgb += col*(T*a)[..., None]
         T *= (1 - a)
 
