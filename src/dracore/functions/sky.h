@@ -18,7 +18,7 @@ dc_skycolor dcEmptySkyColors() {
 
 // light below the horizon is gone
 float dcGlowVisibility(float lightHeight) {
-  return smoothstep(-0.08, 0.12, lightHeight);
+  return smoothstep(-0.25, 0.10, lightHeight); // wide: the glow of a sun just below the horizon fades slowly
 }
 
 // Day, night, rain and underwater, with zenith and horizon only. Sunrise and
@@ -69,7 +69,7 @@ vec3 dcRenderSky(dc_skycolor s, vec3 viewDir) {
 #define DC_SUNMOON_DISC_RADIUS 0.0583
 
 // Glow around the sun and the moon, added to the sky before color correction.
-// The sun has a bright core, a wide soft halo and a haze that hugs the horizon
+// The sun has a soft core, wide soft tails and a haze that hugs the horizon
 // around it. A low sun shines through more air, so its glow is brighter and
 // wider; that only changes the brightness, the color of the sun's light is the
 // same all day and does not change at sunrise or sunset.
@@ -80,19 +80,21 @@ vec3 dcSunMoonGlow(vec3 dir, dc_environment env) {
   float moonAngle = sqrt(2.0*max(1.0 - dot(dir, env.moonDir), 0.0))/(DC_SUNMOON_DISC_RADIUS*DC_MOON_SIZE);
 
   float low = 1.0 - smoothstep(0.0, 0.5, env.sunDir.y);
-  float radial = 2.0*exp(-sunAngle*1.1) + 0.7*exp(-sunAngle*0.30) + 0.35*exp(-sunAngle*0.08);
+  // light has no sharp edge: a soft core, then two slowly thinning tails (1/(1 + x^2), halfway at 5 and
+  // 18 disc radii) that fade into the whole sky without any visible rim
+  float radial = 1.2*exp(-sunAngle*0.9) + 0.9/(1.0 + 0.04*sunAngle*sunAngle) + 0.45/(1.0 + 0.0031*sunAngle*sunAngle);
 
-  // haze along the horizon in the direction of the sun
+  // haze along the horizon in the direction of the sun, wide
   vec2 viewFlat = dir.xz/max(length(dir.xz), 0.0001);
   vec2 sunFlat = env.sunDir.xz/max(length(env.sunDir.xz), 0.0001);
-  float aroundSun = smoothstep(0.2, 1.0, dot(viewFlat, sunFlat));
+  float aroundSun = smoothstep(-0.3, 1.0, dot(viewFlat, sunFlat));
   aroundSun *= aroundSun;
   float up = max(dir.y, 0.0);
   float fade = 1.0 - up*up;
-  float horizonHaze = 0.9*aroundSun*fade*fade*fade*low;
+  float horizonHaze = 1.4*aroundSun*fade*fade*low;
 
   float sunGlow = (radial*(0.35 + 0.65*low) + horizonHaze)*(1.0 + low);
-  float moonGlow = exp(-moonAngle*1.2)*0.30 + exp(-moonAngle*0.25)*0.08;
+  float moonGlow = exp(-moonAngle*1.2)*0.30 + exp(-moonAngle*0.25)*0.08 + 0.06/(1.0 + 0.05*moonAngle*moonAngle);
 
   vec3 glow = DC_SUNGLOW_COL*sunGlow*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
             + vec3(0.55, 0.68, 1.0)*moonGlow*dcGlowVisibility(env.moonDir.y)*night;

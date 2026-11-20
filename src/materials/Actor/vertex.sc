@@ -45,14 +45,12 @@ void main() {
     float cameraDepth = position.z;
     float fogIntensity = calculateFogIntensity(cameraDepth, FogControl.z, FogControl.x, FogControl.y);
 
-    // the fog is handed to the pixels as  color*fog.a + fog.rgb. Mobs get the same light fog as the
-    // blocks, so they stand inside it; under water, in the Nether and in the End it is the vanilla fog
+    // the fog is handed to the pixels as  color*fog.a + fog.rgb. Mobs and the player have the vanilla fog (the
+    // shader cannot tell the player from the other mobs), only under water they share the clear water fog of the blocks
     vec4 fog = vec4(FogColor.rgb*fogIntensity, 1.0 - fogIntensity);
 #if !(defined(DEPTH_ONLY) || defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY_ALPHA_TEST))
-    dc_environment fogEnv = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogControl.xyz);
-    if (!(fogEnv.underwater || fogEnv.nether || fogEnv.end)) {
-        // mobs have no sky light, they are treated as standing in the open
-        fog = dcFog(worldPosition - ViewPositionAndTime.xyz, CameraPosition.xz, CameraPosition.y, 1.0, FogControl.z, ViewPositionAndTime.w, fogEnv, dcSkyColors(fogEnv));
+    if (dcDetectEnvironmentLite(TimeOfDay.x, FogColor.rgb, FogControl.xyz).underwater) {
+        fog = dcUnderwaterFog(length(worldPosition - ViewPositionAndTime.xyz));
     }
 #endif
 

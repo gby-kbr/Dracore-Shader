@@ -20,6 +20,9 @@ SAMPLER2D_AUTOREG(s_DcCloudNoise);
 #if defined(SEASONS)
 SAMPLER2D_AUTOREG(s_SeasonsTexture);
 #endif
+#if defined(OPAQUE) && !defined(SEASONS)
+SAMPLER2D_AUTOREG(s_DcCausticNoise);
+#endif
 
 void main() {
 #if defined(DEPTH_ONLY) || defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY_ALPHA_TEST)
@@ -103,7 +106,6 @@ void main() {
         if (dot(normal, viewDir) > 0.0) {
             normal = -normal;
         }
-        float cosR = -dot(normal, viewDir);
         vec3 reflDir = reflect(viewDir, normal);
 
         if (underwater) {
@@ -112,10 +114,15 @@ void main() {
         } else {
             // a reflected ray that would go below the horizon is held at the horizon
             vec3 dir = normalize(vec3(reflDir.x, max(reflDir.y, 0.0), reflDir.z));
-            waterReflection = dcSkyRadiance(dir, env, skyColors, vec2(40.0, 6.0)*DC_WATER_SUN_GLITTER, s_DcCloudNoise, time);
+            waterReflection = dcSkyRadiance(dir, env, skyColors, vec2(40.0, 6.0)*DC_WATER_SUN_GLITTER, s_DcCloudNoise, CameraPosition.xyz, time);
         }
 
-        waterReflectionAmount = dcWaterShade(diffuse, v_color0.a, cosR);
+        waterReflectionAmount = dcWaterShade(diffuse, v_color0.a);
+
+        // the waves as light and dark ripples, so they show looking straight down as well
+        if (abs(faceNormal.y) > 0.5) {
+            waterReflection *= max(1.0 + dcWaterRipple(gPos.xz, time, camDist), 0.0);
+        }
 
         // the reflection is dimmer in the shade
         waterReflection *= 0.05 + v_lightmapUV.y*v_lightmapUV.y*1.14;
@@ -124,26 +131,37 @@ void main() {
 
     vec3 light = texture2D(s_LightMapTexture, v_lightmapUV).rgb;
     // the End has no sky light, the vanilla lightmap there is dark and green: a soft ambient takes its place
-    if (v_waterInfo.w > 0.5) {
+    if (abs(v_waterInfo.w - 1.0) < 0.5) {
         light = mix(DC_END_AMBIENT_COL*DC_END_AMBIENT, light*DC_END_AMBIENT_COL, smoothstep(0.1, 0.8, v_lightmapUV.x)*0.5);
     }
+    // torches and glowing blocks: the warm version of the vanilla light
+    light = dcTorchLight(light, v_lightmapUV.x, v_lightmapUV.y, 1.0 - v_waterInfo.x, v_waterInfo.w, underwater);
     if (underwater) {
-        light = (light + v_waterInfo.x)*dcUnderwaterTint(skyColors.horizon, v_lightmapUV.y*v_lightmapUV.y);
+        light = (light + DC_UNDERWATER_BRIGHTNESS)*dcUnderwaterTint(skyColors.horizon, v_lightmapUV.y*v_lightmapUV.y);
     }
     diffuse.rgb *= light;
+    if (!isWater && v_waterInfo.x > 0.001) {
+        diffuse.rgb = dcNightLight(diffuse.rgb, v_lightmapUV, v_waterInfo.x); // dark covered places, a dim moonlight
+    }
     diffuse.rgb += waterReflection*waterReflectionAmount;
 
 #if defined(OPAQUE) && !defined(SEASONS)
-    // rain wets every open surface, flat ground and slopes alike
-    if (v_worldPosition.w > 0.01) {
-        dc_environment wetEnv = dcDetectEnvironmentLite(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
-        vec3 wetFrom = v_worldPos - ViewPositionAndTime.xyz;
-        float wetDist = length(wetFrom);
-        vec3 wetNormal = normalize(cross(dFdx(v_worldPos), dFdy(v_worldPos)));
-        if (dot(wetNormal, wetFrom) > 0.0) {
-            wetNormal = -wetNormal;
+    {
+        vec3 pixFrom = v_worldPos - ViewPositionAndTime.xyz;
+        float pixDist = length(pixFrom);
+        vec3 pixNormal = normalize(cross(dFdx(v_worldPos), dFdy(v_worldPos)));
+        if (dot(pixNormal, pixFrom) > 0.0) {
+            pixNormal = -pixNormal;
         }
-        diffuse.rgb = dcWetSurface(diffuse.rgb, v_worldPos + CameraPosition.xyz, wetNormal, wetFrom/wetDist, v_worldPosition.w, v_lightmapUV.y, wetDist, time, dcSkyColors(wetEnv));
+
+        // rain wets every open surface, flat ground and slopes alike
+        if (v_worldPosition.w > 0.01) {
+            dc_environment wetEnv = dcDetectEnvironmentLite(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
+            diffuse.rgb = dcWetSurface(diffuse.rgb, v_worldPos + CameraPosition.xyz, pixNormal, pixFrom/pixDist, v_worldPosition.w, v_lightmapUV.y, pixDist, time, dcSkyColors(wetEnv));
+        }
+
+        // the moving light pattern on the bottom of the sea, from under and above the water
+        diffuse.rgb = dcCaustics(s_DcCausticNoise, diffuse.rgb, v_worldPos.xz + CameraPosition.xz, v_worldPos.y + CameraPosition.y, pixDist, pixNormal, v_lightmapUV.y, TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz, time);
     }
 #endif
 

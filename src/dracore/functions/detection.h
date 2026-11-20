@@ -14,11 +14,14 @@ struct dc_environment {
   vec3 fogCol;      // [0.0, 1.0]
 };
 
-bool dcDetectEnd(vec3 FOG_COLOR) {
-  // the End fog is set in fogs/the_end_fog_setting.json to one exact color that the overworld
-  // never has (DC_END_FOG_COL)
+bool dcDetectEnd(vec3 FOG_COLOR, vec2 FOG_CONTROL) {
+  // the End fog is set in fogs/the_end_fog_setting.json to one exact color that the overworld never has
+  // (DC_END_FOG_COL). As a second way, its distances (start 0.9, end 1.0 of the render distance) are also
+  // found only there: in the overworld the start follows 0.5 + 20/render distance, which is 0.9 only at 50 blocks
   vec3 d = abs(FOG_COLOR - DC_END_FOG_COL);
-  return max(max(d.r, d.g), d.b) < 0.006;
+  bool byColor = max(max(d.r, d.g), d.b) < 0.006;
+  bool byDistance = abs(FOG_CONTROL.x - 0.9) < 0.002 && FOG_CONTROL.y > 0.995;
+  return byColor || byDistance;
 }
 
 bool dcDetectNether(vec3 FOG_COLOR, vec2 FOG_CONTROL) {
@@ -71,9 +74,9 @@ dc_environment dcCalculateSunParams(dc_environment env, float TIME_OF_DAY) {
 
 dc_environment dcDetectEnvironment(float TIME_OF_DAY, vec3 FOG_COLOR, vec3 FOG_CONTROL) {
   dc_environment env;
-  env.end = dcDetectEnd(FOG_COLOR);
-  env.nether = dcDetectNether(FOG_COLOR, FOG_CONTROL.xy);
-  env.underwater = dcDetectUnderwater(FOG_COLOR, FOG_CONTROL.xy);
+  env.end = dcDetectEnd(FOG_COLOR, FOG_CONTROL.xy);
+  env.nether = dcDetectNether(FOG_COLOR, FOG_CONTROL.xy) && !env.end;
+  env.underwater = dcDetectUnderwater(FOG_COLOR, FOG_CONTROL.xy) && !env.end;
   env.rainFactor = dcDetectRain(FOG_CONTROL.xyz);
   env.fogCol = FOG_COLOR;
   env = dcCalculateSunParams(env, TIME_OF_DAY);
@@ -84,9 +87,9 @@ dc_environment dcDetectEnvironment(float TIME_OF_DAY, vec3 FOG_COLOR, vec3 FOG_C
 // working out the sun path for every pixel would be a waste.
 dc_environment dcDetectEnvironmentLite(float TIME_OF_DAY, vec3 FOG_COLOR, vec3 FOG_CONTROL) {
   dc_environment env;
-  env.end = dcDetectEnd(FOG_COLOR);
-  env.nether = dcDetectNether(FOG_COLOR, FOG_CONTROL.xy);
-  env.underwater = dcDetectUnderwater(FOG_COLOR, FOG_CONTROL.xy);
+  env.end = dcDetectEnd(FOG_COLOR, FOG_CONTROL.xy);
+  env.nether = dcDetectNether(FOG_COLOR, FOG_CONTROL.xy) && !env.end;
+  env.underwater = dcDetectUnderwater(FOG_COLOR, FOG_CONTROL.xy) && !env.end;
   env.rainFactor = dcDetectRain(FOG_CONTROL.xyz);
   env.fogCol = FOG_COLOR;
   env.dayFactor = cos(2.0*DC_PI*TIME_OF_DAY);

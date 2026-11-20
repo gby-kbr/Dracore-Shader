@@ -6,37 +6,6 @@
 #include "clouds.h"
 #include "water.h"
 
-// simple random number from a 2D position
-float dcFastRand(vec2 n) {
-  return fract(37.45*sin(dot(n, vec2(4.36, 8.28))));
-}
-
-// Caustic pattern, the same as in Aerotion (its "disp" function): a moving
-// sheet of noise bent by a sine.
-// pos: block position tiled every 16 blocks (0..1), t: time scaled by the wave speed
-float dcCausticPattern(vec3 pos, float t) {
-  float n = sin(8.0*DC_PI_HALF*(pos.x + pos.y*pos.z) + 0.7*t);
-  pos.y += t + 0.8*n;
-  float p = floor(pos.y);
-  return (0.8 + 0.2*n)*mix(dcFastRand(pos.xz + p), dcFastRand(pos.xz + p + 1.0), pos.y - p);
-}
-
-// Light added under the water, the same as Aerotion's underwater lighting: a base
-// brightness and the caustics where the sky reaches.
-// Worked out in the vertex shader, one value per vertex, and blended across the
-// face by the GPU (that is what keeps the pattern soft). lit: block light and sky
-// light squared, uv1: block light and sky light, tiledCpos: block position tiled
-// every 16 blocks.
-float dcUnderwaterLightAdd(vec2 lit, vec2 uv1, vec3 tiledCpos, float t) {
-  float add = DC_UNDERWATER_BRIGHTNESS;
-  if (uv1.y < 0.9) {
-    float caustics = dcCausticPattern(tiledCpos, DC_WATER_WAVE_SPEED*t);
-    caustics *= 3.0*caustics;
-    add += DC_CAUSTIC_INTENSITY*caustics*(0.15 + lit.y + lit.x*0.7);
-  }
-  return add;
-}
-
 // Tint of the water on the light, worked out per pixel. horizonCol is the
 // horizon color of the underwater sky, litY the sky light squared.
 vec3 dcUnderwaterTint(vec3 horizonCol, float litY) {
@@ -47,7 +16,7 @@ vec3 dcUnderwaterTint(vec3 horizonCol, float litY) {
 // colors only through the water mesh, so the sky itself is shown as it is above
 // (sun glow and clouds) and fades to the underwater color towards the horizon.
 // A slow wobble bends the view a little, as the surface would.
-vec3 dcUnderwaterSky(sampler2D noiseTex, vec3 dir, dc_environment env, float time) {
+vec3 dcUnderwaterSky(sampler2D noiseTex, vec3 dir, dc_environment env, vec3 camPos, float time) {
   // what the sky looks like above the water
   dc_environment dry = env;
   dry.underwater = false;
@@ -57,12 +26,20 @@ vec3 dcUnderwaterSky(sampler2D noiseTex, vec3 dir, dc_environment env, float tim
   vec3 skyDir = normalize(vec3(dir.x + wobble.x*DC_UNDERWATER_SKY_WOBBLE, max(dir.y, 0.0), dir.z + wobble.y*DC_UNDERWATER_SKY_WOBBLE));
 
   dc_skycolor dryColors = dcSkyColors(dry);
-  vec3 above = dcRenderSky(dryColors, skyDir) + dcSunMoonGlow(skyDir, dry);
-  vec4 clouds = dcClouds(noiseTex, skyDir, dry, dryColors, time);
+  vec3 glow = dcSunMoonGlow(skyDir, dry);
+  vec3 above = dcRenderSky(dryColors, skyDir) + glow;
+  vec4 clouds = dcClouds(noiseTex, skyDir, dry, dryColors, camPos, glow, time);
   above = mix(above, clouds.rgb, clouds.a);
 
   vec3 below = dcRenderSky(dcSkyColors(env), dir);
   return mix(below, above, smoothstep(0.0, 0.6, dir.y)*DC_UNDERWATER_SKY_VISIBILITY);
+}
+
+// Fog under the water. Clear water: the light is lost slowly and evenly, in a light turquoise, so you can
+// see far, and nothing is hidden behind a blue wall. As  color*fog.a + fog.rgb, dist in blocks
+vec4 dcUnderwaterFog(float dist) {
+  float amount = 1.0 - exp(-DC_UNDERWATER_DENSITY*dist);
+  return vec4(DC_UNDERWATER_FOG_COL*amount, 1.0 - amount);
 }
 
 #endif

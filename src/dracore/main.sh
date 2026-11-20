@@ -16,5 +16,7 @@
 #include "functions/fog.h"
 #include "functions/wave.h"
 #include "functions/wet.h"
+#include "functions/caustics.h"
+#include "functions/lighting.h"
 
 #endif

@@ -9,6 +9,7 @@ uniform vec4 SunMoonColor;
 uniform vec4 FogColor;
 uniform vec4 FogAndDistanceControl;
 uniform vec4 TimeOfDay;
+uniform vec4 CameraPosition;
 
 void main() {
     vec4 color = texture2D(s_SunMoonTexture, v_texcoord0);
@@ -24,7 +25,7 @@ void main() {
     // the sun and the moon are far behind the clouds, so the clouds hide them
     dc_environment env = dcDetectEnvironment(TimeOfDay.x, FogColor.rgb, FogAndDistanceControl.xyz);
     dc_skycolor skyColors = dcSkyColors(env);
-    vec4 clouds = dcClouds(s_DcCloudNoise, normalize(v_worldPos), env, skyColors, v_time.x);
+    vec4 clouds = dcClouds(s_DcCloudNoise, normalize(v_worldPos), env, skyColors, CameraPosition.xyz, vec3_splat(0.0), v_time.x);
     color.a *= 1.0 - clouds.a;
 
     gl_FragColor = vec4(dcColorCorrection(color.rgb), color.a);

@@ -22,5 +22,5 @@ header is included, HLSL rules) and then compiles. The version comes from `mcpac
 - `src/dracore/` config and functions
 - `src/materials/` the materials
 - `mcpack/` pack files that are copied as they are (manifest, textures, End fog and biome)
-- `script/` generators for the textures (`upscale_textures.py` makes the weather and particle textures from the Newb sources)
+- `script/` generators for the textures (`generate_caustic_noise.py` makes the caustics, `upscale_textures.py` makes the weather and particle textures from the Newb sources)
 - `tool/` the builder

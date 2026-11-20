@@ -19,15 +19,20 @@ float dcCloudDensityField(vec4 n, vec4 d, vec4 d2) {
 }
 
 // returns rgb (before color correction) and coverage in alpha.
-// The clouds are lit evenly, so there is one color and the cost is three reads of the noise texture.
-vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyColors, float time) {
+// The layer lies at a fixed height in the world (DC_CLOUD_HEIGHT), so it stays where it is in the sky when the
+// camera moves: flying towards the clouds brings them closer, they do not run away upwards. The clouds are lit
+// evenly, so there is one color and the cost is three reads of the noise texture.
+// camPos: camera position in the world. skyGlow: the glow of the sun or moon in this direction, it tints the clouds near it
+vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyColors, vec3 camPos, vec3 skyGlow, float time) {
   float up = dir.y;
   float horizonFade = smoothstep(0.0, 0.22, up);
   if (horizonFade <= 0.0) return vec4(0.0, 0.0, 0.0, 0.0);
 
-  // flat layer: the farther from the zenith, the more squeezed the clouds look
-  vec2 uv = dir.xz/(up + 0.12);
-  uv += vec2(1.0, 0.35)*time*DC_CLOUD_WIND;
+  // where the ray meets the flat layer, in blocks, then in the units of the noise (128 blocks is one unit, so the
+  // clouds look the same as before for a camera 128 blocks below the layer). The farther from the zenith, the
+  // more squeezed the clouds look
+  float toLayer = max(DC_CLOUD_HEIGHT - camPos.y, 20.0);
+  vec2 uv = (camPos.xz + dir.xz*toLayer/(up + 0.12) + vec2(1.0, 0.35)*time*DC_CLOUD_WIND)*(1.0/128.0);
   vec2 p = uv*DC_CLOUD_SCALE;
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
@@ -48,6 +53,12 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyC
   vec3 col = mix(DC_CLOUD_NIGHT_LIT_COL, DC_CLOUD_LIT_COL, 1.0 - nightFactor);
   vec3 horizonTint = skyColors.horizon/max(dcLuminance(skyColors.horizon), 0.0001);
   col *= mix(vec3_splat(1.0), horizonTint, DC_CLOUD_HORIZON_TINT*(1.0 - nightFactor));
+
+  // near the sun the clouds take the color of its glow, most when the sun is low
+  float lowSun = 1.0 - smoothstep(0.0, 0.5, env.sunDir.y);
+  float tint = clamp(dcLuminance(skyGlow)*DC_CLOUD_GLOW_TINT*(0.35 + 0.65*lowSun)*(1.0 - nightFactor), 0.0, 1.0);
+  vec3 glowCol = DC_SUNGLOW_COL/max(dcLuminance(DC_SUNGLOW_COL), 0.0001);
+  col = mix(col, col*glowCol, tint) + skyGlow*(0.3*DC_CLOUD_GLOW_TINT);
 
   // rain clouds are flat and grey
   float grey = dot(col, vec3(0.33, 0.33, 0.33));

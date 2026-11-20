@@ -40,30 +40,30 @@ float dcFresnel(float cosR, float r0) {
   return r0 + (1.0 - r0)*a2*a2*a;
 }
 
-// Color and opacity of the water surface. cosR is the angle between the view
-// and the surface normal, taken as an absolute value, so the surface is seen
-// the same from above and from under the water: clear when looked at straight,
-// more opaque and more mirror-like at a low angle.
+// Color and opacity of the water surface. Seen the same from every angle: looking straight down, the waves
+// show as much as at a low angle, and the water is as clear.
 // color: the vanilla water color, lit. baseAlpha: the vanilla water alpha.
 // Returns the strength of the reflection to add on top.
-float dcWaterShade(inout vec4 color, float baseAlpha, float cosR) {
-  cosR = abs(cosR);
-  float fresnel = dcFresnel(cosR, DC_WATER_FRESNEL);
-  float opacity = 1.0 - cosR;
-
-  color.rgb *= DC_WATER_COLOR*(1.0 - 0.8*fresnel);
-  color.a = mix(baseAlpha*DC_WATER_TRANSPARENCY, 1.0, opacity*opacity);
-
-  return fresnel*DC_WATER_REFLECTION;
+float dcWaterShade(inout vec4 color, float baseAlpha) {
+  color.rgb *= DC_WATER_COLOR*(1.0 - 0.8*DC_WATER_MIRROR);
+  color.a = baseAlpha*DC_WATER_TRANSPARENCY;
+  return DC_WATER_MIRROR*DC_WATER_REFLECTION;
 }
 
+// How much the waves show as light and dark ripples, [-1.0, 1.0] about, in any view direction. The
+// reflection alone hardly changes when looking down, this keeps the waves visible there.
+float dcWaterRipple(vec2 p, float t, float camDist) {
+  float fade = 1.0 - smoothstep(30.0, 120.0, camDist);
+  return dot(dcWaterSlope(p, t), vec2(0.6, 0.8))*DC_WATER_WAVE_SHADE*fade;
+}
 
 // Everything the sky shows in one direction, for the reflection on the water:
 // gradient, glow, the sun and moon discs, and the clouds in front of them.
-// discRadiance: x sun, y moon, 0.0 hides the discs
-vec3 dcSkyRadiance(vec3 dir, dc_environment env, dc_skycolor sky, vec2 discRadiance, sampler2D noiseTex, float time) {
-  vec4 clouds = dcClouds(noiseTex, dir, env, sky, time);
-  vec3 behind = dcRenderSky(sky, dir) + dcSunMoonGlow(dir, env) + dcSunMoonDisc(dir, env, discRadiance.x, discRadiance.y);
+// discRadiance: x sun, y moon, 0.0 hides the discs. camPos: camera position in the world
+vec3 dcSkyRadiance(vec3 dir, dc_environment env, dc_skycolor sky, vec2 discRadiance, sampler2D noiseTex, vec3 camPos, float time) {
+  vec3 glow = dcSunMoonGlow(dir, env);
+  vec4 clouds = dcClouds(noiseTex, dir, env, sky, camPos, glow, time);
+  vec3 behind = dcRenderSky(sky, dir) + glow + dcSunMoonDisc(dir, env, discRadiance.x, discRadiance.y);
   return mix(behind, clouds.rgb, clouds.a);
 }
 

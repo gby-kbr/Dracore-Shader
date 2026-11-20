@@ -92,6 +92,9 @@ void main() {
     if (!(fogEnv.underwater || fogEnv.nether || fogEnv.end) && MeshContext.x < 0.5) {
         fog = dcFog(worldPos - ViewPositionAndTime.xyz, CameraPosition.xz, CameraPosition.y, lightmapUV.y, fogAndDist.z, ViewPositionAndTime.w, fogEnv, dcSkyColors(fogEnv));
     }
+    if (fogEnv.underwater && MeshContext.x < 0.5) {
+        fog = dcUnderwaterFog(camDist);
+    }
 
 #if defined(TRANSPARENT)
     if (a_color0.a < 0.95) {
@@ -106,18 +109,12 @@ void main() {
         isWater = 1.0;
     }
 #endif
-    float underwater = 0.0;
-    float lightAdd = 0.0;
-#ifndef INSTANCING
-    if (dcDetectUnderwater(FogColor.rgb, FogAndDistanceControl.xy)) {
-        underwater = 1.0;
-        // one value per vertex, blended across the face, which keeps the caustics soft
-        lightAdd = dcUnderwaterLightAdd(lightmapUV*lightmapUV, lightmapUV, fract(a_position.xyz*0.0625), ViewPositionAndTime.w);
-    }
-#endif
+    float underwater = fogEnv.underwater ? 1.0 : 0.0;
 
     v_clipPosition = position;
-    v_waterInfo = vec4(lightAdd, isWater, underwater, dcDetectEnd(FogColor.rgb) ? 1.0 : 0.0);
+    // x: how dark the night is (overworld only), y: is water, z: under water, w: the place (0.0 overworld, 1.0 End, 2.0 Nether)
+    float night = (1.0 - smoothstep(-0.12, 0.12, fogEnv.dayFactor))*((fogEnv.end || fogEnv.nether || fogEnv.underwater) ? 0.0 : 1.0);
+    v_waterInfo = vec4(night, isWater, underwater, fogEnv.end ? 1.0 : (fogEnv.nether ? 2.0 : 0.0));
     // how wet the surface is: rain, on the places the sky can reach, only in the overworld
     float wet = fogEnv.rainFactor*smoothstep(0.6, 0.85, lightmapUV.y);
     if (fogEnv.underwater || fogEnv.nether || fogEnv.end) {

@@ -9,6 +9,7 @@
 // Color correction
 #define DC_GAMMA 1.33     // 0.3 low ~ 2.0 high
 #define DC_EXPOSURE 1.3   // [toggle] 0.5 dark ~ 3.0 bright
+#define DC_SATURATION 1.0 // 0.0 as it is ~ 2.0 vivid, gives back the color the tonemap washes out (1.0: 1.5 times the color)
 
 // Sky colors, zenith and horizon only (linear, before color correction)
 #define DC_DAY_ZENITH_COL     vec3(0.3, 0.9, 2.0)
@@ -35,17 +36,20 @@
 #define DC_CLOUD_SOFTNESS       0.4  // 0.05 hard edges ~ 0.4 fluffy edges
 #define DC_CLOUD_ROUGHNESS      0.26  // 0.0 smooth ~ 0.8 ragged, torn edges
 #define DC_CLOUD_DETAIL_SCALE   5.0   // 1.0 coarse ~ 5.0 fine detail
-#define DC_CLOUD_WIND           0.05 // 0.0 still ~ 0.05 fast
+#define DC_CLOUD_HEIGHT         192.0 // height in blocks of the cloud layer in the world, the clouds stay there when you move
+#define DC_CLOUD_WIND           1.5   // 0.0 still ~ 6.0 fast, speed of the clouds in blocks per second
+#define DC_CLOUD_GLOW_TINT      0.6   // 0.0 none ~ 1.0 strong, how much the clouds near the sun take the color of its glow
 #define DC_CLOUD_LIT_COL        vec3(3.5, 3.5, 3.5)    // the color of the clouds by day
 #define DC_CLOUD_HORIZON_TINT   0.6   // 0.0 own colors ~ 1.0 fully the color of the horizon
 #define DC_CLOUD_NIGHT_LIT_COL  vec3(0.05, 0.07, 0.14)
 #define DC_CLOUD_RAIN_DARK      0.1   // 0.3 stormy dark ~ 1.0 bright grey
 
 // Water (pure clear water with thin waves)
+#define DC_WATER_MIRROR         0.35  // 0.0 none ~ 1.0 mirror, how much the water reflects the sky, the same at every view angle
+#define DC_WATER_WAVE_SHADE     0.25  // 0.0 none ~ 1.0 strong, waves as light and dark ripples, seen looking down too
 #define DC_WATER_TRANSPARENCY   1.0   // 0.0 invisible ~ 1.0 vanilla opacity
 #define DC_WATER_COLOR          vec3(0.0, 0.0, 0.0) // tint of the water, white = no tint
 #define DC_WATER_REFLECTION     1.5   // 0.0 none ~ 1.5 strong mirror
-#define DC_WATER_FRESNEL        0.0   // 0.0 clear ~ 0.15 reflective when looked at straight
 #define DC_WATER_BUMP           0.01  // 0.01 flat ~ 0.2 choppy
 #define DC_WATER_WAVE_SCALE     0.3   // 0.3 long waves ~ 3.0 tiny ripples
 #define DC_WATER_WAVE_SPEED     0.8   // 0.2 calm ~ 2.0 turbulent
@@ -55,9 +59,11 @@
 // the waves break them up
 #define DC_WATER_SUN_GLITTER    1.0   // 0.0 no sun and moon in the water ~ 3.0 blinding
 
-// Under the water
+// Under the water, and the caustics on the sea floor (imported from Bedroalism)
+#define DC_CAUSTICS                  2.0 // 0.0 off ~ 2.0 strong, light pattern on the bottom of the sea, seen from above and under water
 #define DC_UNDERWATER_BRIGHTNESS     0.8 // 0.0 dark ~ 3.0 bright
-#define DC_CAUSTIC_INTENSITY         2.0 // 0.0 none ~ 5.0 bright, light patterns on the ground
+#define DC_UNDERWATER_DENSITY        0.012 // 0.005 crystal clear ~ 0.05 murky, how fast the view fades in the water
+#define DC_UNDERWATER_FOG_COL        vec3(0.10, 0.42, 0.58) // the color of the far water, light turquoise
 #define DC_UNDERWATER_SKY_VISIBILITY 1.0 // 0.0 no sky ~ 1.0 sun and clouds seen from under the water
 #define DC_UNDERWATER_SKY_WOBBLE     0.04 // 0.0 still ~ 0.15 wavy view of the sky
 
@@ -89,6 +95,16 @@
 #define DC_WET_REFLECTION 0.6   // 0.0 matte ~ 1.0 mirror, how much wet ground mirrors the sky (weak looking down, strong at a low angle)
 #define DC_WET_RIPPLES    1.0   // 0.0 none ~ 2.0 many, the rings of the drops on the ground
 #define DC_WET_SIDES      0.5   // 0.0 only flat ground ~ 1.0 walls as wet as the ground, how wet the sides of blocks get
+
+// Night and lights
+#define DC_NIGHT_DARKNESS   0.9  // 0.0 vanilla ~ 1.0 zero ambient in covered places, torch light is kept
+#define DC_MOONLIGHT        0.12 // 0.0 none ~ 1.0 full, brightness left under the open night sky
+#define DC_MOONLIGHT_COL    vec3(0.62, 0.78, 1.1) // tint of the moonlit surfaces
+// Light of torches and every glowing block, the warm version of the vanilla light, one for each place
+#define DC_TORCH_COL            vec3(1.0, 0.80, 0.55) // overworld
+#define DC_TORCH_UNDERWATER_COL vec3(1.0, 0.85, 0.62) // under water
+#define DC_TORCH_NETHER_COL     vec3(1.0, 0.72, 0.45) // the Nether
+#define DC_TORCH_END_COL        vec3(1.0, 0.78, 0.66) // the End
 
 // Rain and snow
 #define DC_RAIN_WIDTH    0.5   // 0.3 hair thin ~ 1.0 vanilla, how wide the rain streaks are

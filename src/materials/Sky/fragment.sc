@@ -11,6 +11,7 @@
 
     uniform vec4 TimeOfDay;
     uniform vec4 FogColor;
+    uniform vec4 CameraPosition;
 #endif
 
 void main() {
@@ -28,13 +29,13 @@ void main() {
     vec3 sky;
     if (env.underwater) {
         // under the water the sun and the clouds are still seen through the surface
-        sky = dcUnderwaterSky(s_DcCloudNoise, viewDir, env, v_envParams.z);
+        sky = dcUnderwaterSky(s_DcCloudNoise, viewDir, env, CameraPosition.xyz, v_envParams.z);
     } else {
         dc_skycolor skyColors = dcSkyColors(env);
-        sky = dcRenderSky(skyColors, viewDir);
-        sky += dcSunMoonGlow(viewDir, env);
+        vec3 glow = dcSunMoonGlow(viewDir, env);
+        sky = dcRenderSky(skyColors, viewDir) + glow;
 
-        vec4 clouds = dcClouds(s_DcCloudNoise, viewDir, env, skyColors, v_envParams.z);
+        vec4 clouds = dcClouds(s_DcCloudNoise, viewDir, env, skyColors, CameraPosition.xyz, glow, v_envParams.z);
         sky = mix(sky, clouds.rgb, clouds.a);
     }
 
