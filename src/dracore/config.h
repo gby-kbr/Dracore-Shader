@@ -17,9 +17,9 @@
 // into the night sky. Night: a deep navy zenith under a lighter, soft blue horizon
 #define DC_NIGHT_ZENITH_COL   vec3(0.0148, 0.0261, 0.0884)
 #define DC_NIGHT_HORIZON_COL  vec3(0.0307, 0.0460, 0.1066)
-#define DC_RAIN_ZENITH_COL    vec3(0.47, 0.51, 0.56)
-#define DC_RAIN_HORIZON_COL   vec3(0.6, 0.6, 0.6)
-#define DC_SKY_RAIN_MIX       0.9    // 0.0 no change ~ 1.0 fully overcast in rain
+#define DC_RAIN_ZENITH_COL    vec3(0.40, 0.40, 0.40) // pure grey, a little dark
+#define DC_RAIN_HORIZON_COL   vec3(0.52, 0.52, 0.52) // pure grey, a little dark
+#define DC_SKY_RAIN_MIX       1.0    // 0.0 no change ~ 1.0 fully overcast in rain
 #define DC_UNDERWATER_TINT    vec3(0.9, 1.0, 0.9) // sky tint when underwater
 
 // Sun and moon
