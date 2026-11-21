@@ -87,7 +87,25 @@ def fit_circle(gray):
     return cx, cy, radius
 
 
+def moon_albedo_from_sheet():
+    """No NASA photo: the first tile of the existing sheet is a full moon, and a full moon is the albedo itself
+    (its shading is 1.0 everywhere). Unpremultiply it and measure the disc."""
+    sheet = np.asarray(Image.open(os.path.join(OUT_DIR, "moon_phases.png")).convert("RGBA"), dtype=float) / 255.0
+    tile = sheet[:MOON_TILE, :MOON_TILE]
+    alpha = tile[..., 3:4]
+    albedo = np.where(alpha > 0.02, tile[..., :3] / np.maximum(alpha, 0.02), 0.0)
+    # the old soft limb darkened the rim, give it back some light
+    ys, xs = np.mgrid[0:MOON_TILE, 0:MOON_TILE]
+    radius = MOON_DISC * MOON_TILE / 2.0
+    r = np.hypot(xs + 0.5 - MOON_TILE / 2.0, ys + 0.5 - MOON_TILE / 2.0) / radius
+    z = np.sqrt(np.clip(1.0 - r * r, 0.0, 1.0))
+    albedo = albedo / np.maximum(smoothstep(0.0, 0.08, z), 0.25)[..., None]
+    return np.clip(albedo, 0.0, 1.0), radius
+
+
 def moon_albedo_tile():
+    if not os.path.exists(MOON_SOURCE):
+        return moon_albedo_from_sheet()
     src = Image.open(MOON_SOURCE).convert("RGB")
     gray = np.asarray(src.convert("L").filter(ImageFilter.GaussianBlur(2)), dtype=float)
     cx, cy, radius = fit_circle(gray)
@@ -105,6 +123,16 @@ def moon_albedo_tile():
 def make_moon():
     albedo, radius = moon_albedo_tile()
     n = MOON_TILE
+    # the edge between the lit and the dark part is not a clean line: slow blotches of noise and the dark and bright
+    # patches of the surface move it back and forth a little
+    rng = np.random.default_rng(7)
+    blotch = ndimage.gaussian_filter(rng.standard_normal((n, n)), 14.0)
+    blotch /= np.abs(blotch).max()
+    fine = ndimage.gaussian_filter(rng.standard_normal((n, n)), 4.0)
+    fine /= np.abs(fine).max()
+    grey = albedo.mean(axis=2)
+    patch = ndimage.gaussian_filter(grey, 6.0)
+    patch = (patch - patch[patch > 0.05].mean())
     c = n / 2.0
     ys, xs = np.mgrid[0:n, 0:n]
     x = (xs + 0.5 - c) / radius
@@ -119,10 +147,11 @@ def make_moon():
         lx = np.sin(a) * (1.0 if waxing else -1.0)
         lz = np.cos(a)
         mu0 = x * lx + z * lz                       # cosine of the angle to the sun
+        mu0 = mu0 + 0.16 * blotch + 0.05 * fine + 0.35 * patch   # ragged, uneven terminator
         mu = z                                      # cosine of the angle to the viewer
         lit = np.clip(mu0, 0.0, None)
         ls = np.minimum(2.0 * lit / (lit + mu + 1e-3), 1.25)       # Lommel-Seeliger, 1.0 for a full moon
-        term = smoothstep(0.0, 0.08, mu0)                          # soft terminator
+        term = smoothstep(-0.10, 0.45, mu0)                        # wide, soft terminator
         gain = 1.0 - 0.35 * (angle_deg / 180.0)                    # a partial moon is dimmer than its lit area suggests
         illum = ls * term * gain
         earthshine = 0.04 * (angle_deg / 180.0)                    # faint light reflected by the Earth on the dark side

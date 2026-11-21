@@ -29,6 +29,8 @@ void main() {
     v_envParams = vec3(float(underwater), dcDetectRain(FogAndDistanceControl.xyz), ViewPositionAndTime.w);
     v_worldPos = worldPosition;
 
-    // under the water the clouds are drawn in the sky, not on the sheet
-    gl_Position = underwater ? vec4(0.0, 0.0, 0.0, 0.0) : mul(u_viewProj, vec4(worldPosition, 1.0));
+    // The sheet is only for a camera in or above the layer, from below the sky draws the clouds. The mesh
+    // of the game holds cells only where its own clouds are, so from below it would show their shapes
+    bool sheet = !underwater && (DC_CLOUD_HEIGHT - CameraPosition.y) < 1.0;
+    gl_Position = !sheet ? vec4(0.0, 0.0, 0.0, 0.0) : mul(u_viewProj, vec4(worldPosition, 1.0));
 }

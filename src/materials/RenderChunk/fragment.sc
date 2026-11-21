@@ -139,6 +139,9 @@ void main() {
     }
     // torches and glowing blocks: the warm version of the vanilla light
     light = dcTorchLight(light, v_lightmapUV.x, v_lightmapUV.y, 1.0 - v_waterInfo.x, v_waterInfo.w, underwater);
+    if (abs(v_waterInfo.w) < 0.5 && !underwater) {
+        light *= dcSunLightTint(cos(2.0*DC_PI*TimeOfDay.x), v_lightmapUV.y, dcDetectRain(FogAndDistanceControl.xyz));
+    }
     if (underwater) {
         light = (light + DC_UNDERWATER_BRIGHTNESS)*dcUnderwaterTint(skyColors.horizon, v_lightmapUV.y*v_lightmapUV.y);
     }

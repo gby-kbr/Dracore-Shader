@@ -20,7 +20,7 @@ vec3 dcUnderwaterSky(sampler2D noiseTex, vec3 dir, dc_environment env, vec3 camP
   // what the sky looks like above the water
   dc_environment dry = env;
   dry.underwater = false;
-  dry.rainFactor = 0.0;
+  dry.rainFactor = env.rainFactor; // the weather above, worked out in the sky shader
 
   vec2 wobble = dcWaterSlope(dir.xz/(dir.y + 0.35)*3.0, time);
   vec3 skyDir = normalize(vec3(dir.x + wobble.x*DC_UNDERWATER_SKY_WOBBLE, max(dir.y, 0.0), dir.z + wobble.y*DC_UNDERWATER_SKY_WOBBLE));

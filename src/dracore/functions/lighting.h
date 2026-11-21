@@ -28,6 +28,19 @@ vec3 dcTorchLight(vec3 lightMap, float blockLight, float skyLight, float day, fl
   return lightMap*mix(vec3_splat(1.0), warm, clamp(share, 0.0, 1.0));
 }
 
+// Color of the sunlight on the world: warm at noon, at dawn and dusk the color of the sun glow. Only places open to
+// the sky get it, and rain takes it away. sunHeight: sun direction y, skyLight: lightmap uv, rain: [0.0, 1.0]
+vec3 dcSunLightTint(float sunHeight, float skyLight, float rain) {
+  float open = smoothstep(0.4, 0.95, skyLight);
+  float noon = smoothstep(0.25, 0.85, sunHeight)*DC_SUNLIGHT_NOON;
+  float dawn = (1.0 - smoothstep(0.05, 0.35, sunHeight))*smoothstep(-0.12, 0.02, sunHeight)*DC_SUNLIGHT_DAWN;
+  vec3 noonCol = DC_SUNLIGHT_NOON_COL/max(dcLuminance(DC_SUNLIGHT_NOON_COL), 0.001);
+  vec3 dawnCol = DC_SUNGLOW_COL/max(dcLuminance(DC_SUNGLOW_COL), 0.001);
+  vec3 tint = mix(vec3_splat(1.0), noonCol, noon);
+  tint = mix(tint, dawnCol, dawn);
+  return mix(vec3_splat(1.0), tint, open*(1.0 - rain));
+}
+
 // Night in the overworld: covered places go dark and the open sky keeps a dim cool moonlight, torch light is
 // kept. night: [0.0, 1.0], zero in other places. torch, skyLit: lightmap uv.
 vec3 dcNightLight(vec3 col, vec2 lightmapUV, float night) {

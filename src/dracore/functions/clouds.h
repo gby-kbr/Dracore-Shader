@@ -19,9 +19,9 @@ float dcCloudDensityField(vec4 n, vec4 d, vec4 d2) {
 }
 
 // Clouds at one spot of the layer. worldXZ: the place in the world (blocks), skyGlow: the glow of the sun or
-// moon in this direction, it tints the clouds near it. Returns rgb (before color correction) and coverage in alpha.
+// moon in this direction, it tints the clouds near it. skyHere: the sky behind in this direction, the rain clouds take its color. Returns rgb (before color correction) and coverage in alpha.
 // The clouds are lit evenly, so there is one color and the cost is three reads of the noise texture.
-vec4 dcCloudsAt(sampler2D noiseTex, vec2 worldXZ, dc_environment env, dc_skycolor skyColors, vec3 skyGlow, float time) {
+vec4 dcCloudsAt(sampler2D noiseTex, vec2 worldXZ, dc_environment env, dc_skycolor skyColors, vec3 skyGlow, vec3 skyHere, float time) {
   // 128 blocks is one unit of the noise
   vec2 uv = (worldXZ + vec2(1.0, 0.35)*time*DC_CLOUD_WIND)*(1.0/128.0);
   vec2 p = uv*DC_CLOUD_SCALE;
@@ -38,6 +38,7 @@ vec4 dcCloudsAt(sampler2D noiseTex, vec2 worldXZ, dc_environment env, dc_skycolo
   float cover = mix(DC_CLOUD_COVER, 0.95, rain);
   float edge = 1.0 - cover;
   float density = smoothstep(edge, edge + DC_CLOUD_SOFTNESS, dcCloudDensityField(shape, detail, detail2));
+  density *= 1.0 - DC_CLOUD_RAIN_FADE*rain; // the rain sky is one grey cover, the clouds only keep a faint structure
 
   // color, linear and before color correction. By day the clouds take the color of the
   // horizon with the brightness kept
@@ -51,8 +52,8 @@ vec4 dcCloudsAt(sampler2D noiseTex, vec2 worldXZ, dc_environment env, dc_skycolo
   vec3 glowCol = DC_SUNGLOW_COL/max(dcLuminance(DC_SUNGLOW_COL), 0.0001);
   col = mix(col, col*glowCol, tint) + skyGlow*(0.3*DC_CLOUD_GLOW_TINT);
 
-  // in rain the clouds are the color of the grey rain sky
-  col = mix(col, skyColors.horizon*DC_CLOUD_RAIN_BRIGHTNESS, rain);
+  // in rain the clouds are the color of the grey rain sky around them
+  col = mix(col, skyHere*DC_CLOUD_RAIN_BRIGHTNESS, rain);
 
   return vec4(col, density);
 }
@@ -67,7 +68,7 @@ vec4 dcClouds(sampler2D noiseTex, vec3 dir, dc_environment env, dc_skycolor skyC
   float horizonFade = smoothstep(0.0, 0.22, up);
   if (horizonFade <= 0.0 || toLayer <= 0.0) return vec4(0.0, 0.0, 0.0, 0.0);
 
-  vec4 c = dcCloudsAt(noiseTex, camPos.xz + dir.xz*(toLayer/up), env, skyColors, skyGlow, time);
+  vec4 c = dcCloudsAt(noiseTex, camPos.xz + dir.xz*(toLayer/up), env, skyColors, skyGlow, dcRenderSky(skyColors, dir), time);
   return vec4(c.rgb, c.a*horizonFade);
 }
 

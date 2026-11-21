@@ -19,7 +19,7 @@ void main() {
     dc_skycolor skyColors = dcSkyColors(env);
     vec3 glow = dcSunMoonGlow(dir, env);
 
-    vec4 clouds = dcCloudsAt(s_DcCloudNoise, v_worldPos.xz + CameraPosition.xz, env, skyColors, glow, v_envParams.z);
+    vec4 clouds = dcCloudsAt(s_DcCloudNoise, v_worldPos.xz + CameraPosition.xz, env, skyColors, glow, dcRenderSky(skyColors, dir), v_envParams.z);
 
     // the far edge of the sheet fades out, the sky draws the clouds from there on
     float edge = 1.0 - smoothstep(250.0, 500.0, length(v_worldPos.xz));

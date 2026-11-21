@@ -12,6 +12,7 @@
     uniform vec4 TimeOfDay;
     uniform vec4 FogColor;
     uniform vec4 CameraPosition;
+    uniform vec4 SkyColor;
 #endif
 
 void main() {
@@ -25,6 +26,12 @@ void main() {
     env.rainFactor = v_envParams.y;
     env.fogCol = FogColor.rgb;
     env = dcCalculateSunParams(env, TimeOfDay.x);
+    if (env.underwater) {
+        // the fog gives no weather under the water, the game's sky color does: grey in rain, blue when clear
+        float hi = max(max(SkyColor.r, SkyColor.g), SkyColor.b);
+        float sat = (hi - min(min(SkyColor.r, SkyColor.g), SkyColor.b))/max(hi, 0.02);
+        env.rainFactor = 1.0 - smoothstep(0.10, 0.30, sat);
+    }
 
     vec3 sky;
     if (env.underwater) {

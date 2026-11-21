@@ -41,10 +41,11 @@
 #define DC_CLOUD_LIT_COL        vec3(3.5, 3.5, 3.5)    // the color of the clouds by day
 #define DC_CLOUD_HORIZON_TINT   0.6   // 0.0 own colors ~ 1.0 fully the color of the horizon
 #define DC_CLOUD_NIGHT_LIT_COL  vec3(0.05, 0.07, 0.14)
-#define DC_CLOUD_RAIN_BRIGHTNESS 0.9 // 0.6 dark ~ 1.2 bright, rain clouds against the rain sky (1.0 the same as the sky)
+#define DC_CLOUD_RAIN_BRIGHTNESS 1.0 // 0.6 dark ~ 1.2 bright, rain clouds against the rain sky (1.0 the same as the sky)
+#define DC_CLOUD_RAIN_FADE      0.8   // 0.0 same ~ 1.0 gone, how much of the clouds is left in rain
 
 // Water (pure clear water with thin waves)
-#define DC_WATER_SURFACE_DIM    0.5   // 0.2 dark ~ 1.0 as bright as the sky mirror, only the surface seen from above, not under the water
+#define DC_WATER_SURFACE_DIM    0.38  // 0.2 dark ~ 1.0 as bright as the sky mirror, only the surface seen from above, not under the water
 #define DC_WATER_MIRROR         0.35  // 0.0 none ~ 1.0 mirror, how much the water reflects the sky, the same at every view angle
 #define DC_WATER_WAVE_SHADE     0.25  // 0.0 none ~ 1.0 strong, waves as light and dark ripples, seen looking down too
 #define DC_WATER_TRANSPARENCY   1.0   // 0.0 invisible ~ 1.0 vanilla opacity
@@ -95,6 +96,11 @@
 #define DC_WET_REFLECTION 0.6   // 0.0 matte ~ 1.0 mirror, how much wet ground mirrors the sky (weak looking down, strong at a low angle)
 #define DC_WET_RIPPLES    1.0   // 0.0 none ~ 2.0 many, the rings of the drops on the ground
 #define DC_WET_SIDES      0.5   // 0.0 only flat ground ~ 1.0 walls as wet as the ground, how wet the sides of blocks get
+
+// Sunlight on the world: warm at noon, the color of the sun glow at dawn and dusk. Only places open to the sky
+#define DC_SUNLIGHT_NOON_COL    vec3(1.0, 0.93, 0.80) // warm white
+#define DC_SUNLIGHT_NOON        0.6   // 0.0 none ~ 1.0 full, noon warmth
+#define DC_SUNLIGHT_DAWN        0.6   // 0.0 none ~ 1.0 full, how much the light takes the color of the sun glow at dawn and dusk
 
 // Night and lights
 #define DC_NIGHT_DARKNESS   0.9  // 0.0 vanilla ~ 1.0 zero ambient in covered places, torch light is kept
