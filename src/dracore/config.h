@@ -7,7 +7,7 @@
 */
 
 // Color correction
-#define DC_EXPOSURE 0.75  // 0.4 dark ~ 1.5 bright, before the ACES film curve
+#define DC_EXPOSURE 0.8  // 0.4 dark ~ 1.5 bright, before the ACES film curve
 
 // Sky colors, zenith and horizon only (linear, before color correction)
 #define DC_DAY_ZENITH_COL     vec3(0.101, 0.213, 0.581)
@@ -23,9 +23,9 @@
 
 // Sun and moon
 #define DC_SUN_SIZE       1.0   // 0.3 tiny ~ 4.0 massive
-#define DC_MOON_SIZE      1.2   // 0.3 tiny ~ 4.0 massive
+#define DC_MOON_SIZE      1.5   // 0.3 tiny ~ 4.0 massive
 #define DC_SUNMOON_GLOW   1.0   // 0.0 none ~ 2.0 strong, the soft glow around the sun and the moon
-#define DC_SUNGLOW_DAY_COL vec3(1.0, 1.0, 1.0) // neutral white glow of the sun by day
+#define DC_SUNGLOW_DAY_COL vec3(1.0, 0.98, 0.94) // neutral white glow of the sun by day
 #define DC_SUNGLOW_COL    vec3(1.0, 0.90, 0.45) // cream glow of the sun at dawn and dusk
 
 // Clouds (cumulus, one layer in the sky)
@@ -71,7 +71,7 @@
 
 // Fog, overworld only
 #define DC_FOG_BASE_HEIGHT   63.0  // height in blocks where the fog is thickest (sea level)
-#define DC_FOG_DENSITY       0.0045// 0.0015 thin ~ 0.012 thick, light lost per block at the base height
+#define DC_FOG_DENSITY       0.005// 0.0015 thin ~ 0.012 thick, light lost per block at the base height
 #define DC_FOG_FALLOFF       0.02  // 0.008 deep layer ~ 0.05 thin ground fog, thinning with height
 #define DC_FOG_RAIN          9.0   // 0.0 none ~ 12.0 very dense, extra fog in rain
 #define DC_FOG_RAIN_DARKEN   0.25  // 0.0 sky colored ~ 0.6 dark grey, how dark the fog gets in rain
@@ -94,7 +94,7 @@
 
 // Wet ground, in the rain
 #define DC_WET_DARKEN     0.35  // 0.0 none ~ 0.6 soaked, how much darker wet ground is
-#define DC_WET_REFLECTION 0.6   // 0.0 matte ~ 1.0 mirror, how much wet ground mirrors the sky (weak looking down, strong at a low angle)
+#define DC_WET_REFLECTION 0.8   // 0.0 matte ~ 1.0 mirror, how much wet ground mirrors the sky (weak looking down, strong at a low angle)
 #define DC_WET_RIPPLES    1.0   // 0.0 none ~ 2.0 many, the rings of the drops on the ground
 #define DC_WET_SIDES      0.5   // 0.0 only flat ground ~ 1.0 walls as wet as the ground, how wet the sides of blocks get
 
@@ -104,8 +104,8 @@
 #define DC_SUNLIGHT_DAWN        0.6   // 0.0 none ~ 1.0 full, how much the light takes the color of the sun glow at dawn and dusk
 
 // Night and lights
-#define DC_NIGHT_DARKNESS   0.9  // 0.0 vanilla ~ 1.0 zero ambient in covered places, torch light is kept
-#define DC_MOONLIGHT        0.12 // 0.0 none ~ 1.0 full, brightness left under the open night sky
+#define DC_NIGHT_DARKNESS   0.95  // 0.0 vanilla ~ 1.0 zero ambient in covered places, torch light is kept
+#define DC_MOONLIGHT        0.1 // 0.0 none ~ 1.0 full, brightness left under the open night sky
 #define DC_MOONLIGHT_COL    vec3(0.62, 0.78, 1.1) // tint of the moonlit surfaces
 // Light of torches and every glowing block, the warm version of the vanilla light, one for each place
 #define DC_TORCH_COL            vec3(1.0, 0.80, 0.55) // overworld
