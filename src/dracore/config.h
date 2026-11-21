@@ -10,9 +10,6 @@
 #define DC_TONEMAP 1      // 0 Reinhard-Jodie (soft, a little washed) ~ 1 ACES film (punchy, vibrant) ~ 2 ACES Hill (very filmic, darker greens). Retune exposure and gamma when you change it
 #define DC_GAMMA 1.1      // 0.3 low ~ 2.0 high
 #define DC_EXPOSURE 1.1   // [toggle] 0.5 dark ~ 3.0 bright
-#define DC_CONTRAST 0.1   // 0.0 flat ~ 0.8 punchy, depth between light and shadow
-#define DC_VIBRANCE 0.35  // 0.0 none ~ 1.0 strong, lifts only the muted colors, strong colors stay as they are
-#define DC_COLOR_BALANCE 1.0 // 0.0 neutral ~ 2.0 strong, warm light parts and cool shadows
 
 // Sky colors, zenith and horizon only (linear, before color correction)
 #define DC_DAY_ZENITH_COL     vec3(0.3, 0.9, 2.0)

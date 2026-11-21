@@ -38,7 +38,7 @@ vec3 dcAcesHill(vec3 c) {
                     dot(vec3(-0.00327, -0.07276, 1.07602), c)), 0.0, 1.0);
 }
 
-// Final color correction: exposure -> tonemap -> gamma -> contrast, vibrance and balance.
+// Final color correction: exposure -> tonemap -> gamma.
 // Applied once per material, on the last color written to the screen.
 vec3 dcColorCorrection(vec3 col) {
   col *= DC_EXPOSURE;
@@ -52,20 +52,6 @@ vec3 dcColorCorrection(vec3 col) {
 #endif
 
   col = pow(col, vec3_splat(1.0 / DC_GAMMA));
-
-  // a light S-curve: deeper shadows and brighter highlights, so the picture has depth and snap
-  col = mix(col, col*col*(3.0 - 2.0*col), DC_CONTRAST);
-
-  // vibrance: lifts only the muted colors (grass, wood, stone, the sky near the horizon) and leaves colors that
-  // are already strong alone, so nothing turns neon like a plain saturation boost would
-  float lum = dcLuminance(col);
-  float chroma = max(max(col.r, col.g), col.b) - min(min(col.r, col.g), col.b);
-  col = mix(vec3_splat(lum), col, 1.0 + DC_VIBRANCE*(1.0 - smoothstep(0.0, 0.6, chroma)));
-
-  // balance: a little warmth in the light parts and a little cool blue in the shadows
-  float shadow = 1.0 - smoothstep(0.0, 0.5, lum);
-  float light = smoothstep(0.35, 1.0, lum);
-  col *= vec3_splat(1.0) + DC_COLOR_BALANCE*(light*vec3(0.06, 0.02, -0.07) + shadow*vec3(-0.04, -0.01, 0.06));
 
   return max(col, vec3_splat(0.0));
 }
