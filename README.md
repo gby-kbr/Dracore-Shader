@@ -24,3 +24,9 @@ header is included, HLSL rules) and then compiles. The version comes from `mcpac
 - `mcpack/` pack files that are copied as they are (manifest, textures, End fog and biome)
 - `script/` generators for the textures (`generate_caustic_noise.py` makes the caustics, `upscale_textures.py` makes the weather and particle textures from the Newb sources)
 - `tool/` the builder
+
+## Credits
+
+- The sRGB to linear texture decode and the linear to sRGB output encode in `tonemap.h` follow the approach shown by the creator of IzH RD Shader (CurseForge). The formulas themselves are the standard sRGB transfer functions.
+- ACES film curve: Krzysztof Narkowicz.
+- Weather and particle textures, and the idea of an analytic sky: Newb (devendrn). Caustics and tooling: Bedroalism.
