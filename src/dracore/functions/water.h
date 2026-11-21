@@ -64,7 +64,8 @@ vec3 dcSkyRadiance(vec3 dir, dc_environment env, dc_skycolor sky, vec2 discRadia
   vec3 glow = dcSunMoonGlow(dir, env);
   vec4 clouds = dcClouds(noiseTex, dir, env, sky, camPos, glow, time);
   vec3 behind = dcRenderSky(sky, dir) + glow + dcSunMoonDisc(dir, env, discRadiance.x, discRadiance.y);
-  return mix(behind, clouds.rgb, clouds.a);
+  // the water shows the clouds fainter than the sky does, so the surface is not a copy of the sky
+  return mix(behind, clouds.rgb, clouds.a*DC_WATER_CLOUD_REFLECTION);
 }
 
 #endif
