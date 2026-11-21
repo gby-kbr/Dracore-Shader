@@ -25,7 +25,6 @@
 #define DC_SUN_SIZE       1.0   // 0.3 tiny ~ 4.0 massive
 #define DC_MOON_SIZE      1.2   // 0.3 tiny ~ 4.0 massive
 #define DC_SUNMOON_GLOW   1.0   // 0.0 none ~ 2.0 strong, the soft glow around the sun and the moon
-#define DC_TERRAIN_GLOW   1.0   // 0.0 off ~ 2.0 strong, the sun glow on the terrain and the water, a test
 #define DC_SUNGLOW_COL    vec3(1.0, 0.90, 0.45) // pale cream light of the sun, the same all day
 
 // Clouds (cumulus, one layer in the sky)
@@ -65,7 +64,7 @@
 #define DC_CAUSTICS                  2.0 // 0.0 off ~ 2.0 strong, light pattern on the bottom of the sea, seen from above and under water
 #define DC_UNDERWATER_BRIGHTNESS     0.8 // 0.0 dark ~ 3.0 bright
 #define DC_UNDERWATER_DENSITY        0.012 // 0.005 crystal clear ~ 0.05 murky, how fast the view fades in the water
-#define DC_UNDERWATER_FOG_COL        vec3(0.10, 0.42, 0.58) // the color of the far water, light turquoise
+#define DC_UNDERWATER_FOG_COL        vec3(0.044, 0.178, 0.257) // the color of the far water, light turquoise
 #define DC_UNDERWATER_SKY_VISIBILITY 1.0 // 0.0 no sky ~ 1.0 sun and clouds seen from under the water
 #define DC_UNDERWATER_SKY_WOBBLE     0.04 // 0.0 still ~ 0.15 wavy view of the sky
 
@@ -121,7 +120,7 @@
 #define DC_WEATHER_SIZE  1.0   // 0.5 tiny ~ 2.0 large, size of rain and snow particles
 
 // The End
-#define DC_END_FOG_COL     vec3(0.549, 0.800, 1.000) // must match fog_color #8CCCFF in mcpack/fogs/the_end_fog_setting.json, it also detects the End (the color must match to 0.006)
+#define DC_END_FOG_COL     vec3(0.188, 0.290, 0.384) // must match fog_color #304A62 in mcpack/fogs/the_end_fog_setting.json, it also detects the End (the color must match to 0.006)
 #define DC_END_SKY_BRIGHTNESS 1.0 // 0.5 dark ~ 2.0 bright, the End sky panorama
 #define DC_END_AMBIENT     1.0   // 0.8 dark ~ 2.2 bright, the light on the islands of the End
 #define DC_END_AMBIENT_COL vec3(0.88, 0.90, 1.10) // soft blue, the color of the End sky and fog

@@ -176,11 +176,6 @@ void main() {
 
     diffuse.rgb = diffuse.rgb*v_fog.a + v_fog.rgb; // fog, worked out in the vertex shader
 
-    if (abs(v_waterInfo.w) < 0.5 && !underwater) {
-        dc_environment sunEnv = dcCalculateSunParams(dcEmptyEnvironment(), TimeOfDay.x);
-        diffuse.rgb = dcTerrainSunGlow(normalize(v_worldPos - ViewPositionAndTime.xyz), sunEnv.sunDir, diffuse.rgb, dcDetectRain(FogAndDistanceControl.xyz));
-    }
-
     diffuse.rgb = dcColorCorrection(diffuse.rgb);
 
     gl_FragColor = diffuse;

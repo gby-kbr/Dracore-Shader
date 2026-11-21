@@ -68,38 +68,24 @@ vec3 dcRenderSky(dc_skycolor s, vec3 viewDir) {
 // (the disc is 25% of the quad: 0.25 * 70 / 300)
 #define DC_SUNMOON_DISC_RADIUS 0.0583
 
-// Glow around the sun and the moon, added to the sky before color correction.
-// The sun has a soft core, wide soft tails and a haze that hugs the horizon
-// around it. A low sun shines through more air, so its glow is brighter and
-// wider; that only changes the brightness, the color of the sun's light is the
-// same all day and does not change at sunrise or sunset.
+// Glow around the sun and the moon, added to the sky before color correction. Both use the same shape: a
+// soft core and two thin tails that fade into the whole sky without any visible rim, so light has no sharp edge.
+// The sun's glow has the cream color of the sun (the same all day) and shows only at dawn and dusk, the
+// moon's glow is soft blue. No glow in rain.
+float dcGlowShape(float angle) {
+  return exp(-angle*1.2)*0.30 + exp(-angle*0.25)*0.08 + 0.06/(1.0 + 0.05*angle*angle);
+}
+
 vec3 dcSunMoonGlow(vec3 dir, dc_environment env) {
   float night = 1.0 - smoothstep(-0.22, 0.0, env.dayFactor);
 
+  // angle to the center in disc radii
   float sunAngle = sqrt(2.0*max(1.0 - dot(dir, env.sunDir), 0.0))/(DC_SUNMOON_DISC_RADIUS*DC_SUN_SIZE);
   float moonAngle = sqrt(2.0*max(1.0 - dot(dir, env.moonDir), 0.0))/(DC_SUNMOON_DISC_RADIUS*DC_MOON_SIZE);
 
-  float low = 1.0 - smoothstep(0.0, 0.5, env.sunDir.y);
-  // light has no sharp edge: a soft core, then two slowly thinning tails (1/(1 + x^2), halfway at 5 and
-  // 18 disc radii) that fade into the whole sky without any visible rim
-  float radial = 0.72*exp(-sunAngle*0.9) + 0.54/(1.0 + 0.04*sunAngle*sunAngle) + 0.27/(1.0 + 0.0031*sunAngle*sunAngle);
-
-  // haze along the horizon in the direction of the sun, wide
-  vec2 viewFlat = dir.xz/max(length(dir.xz), 0.0001);
-  vec2 sunFlat = env.sunDir.xz/max(length(env.sunDir.xz), 0.0001);
-  float aroundSun = smoothstep(-0.3, 1.0, dot(viewFlat, sunFlat));
-  aroundSun *= aroundSun;
-  float up = max(dir.y, 0.0);
-  float fade = 1.0 - up*up;
-  float horizonHaze = 0.85*aroundSun*fade*fade*low;
-
-  float sunGlow = (radial*(0.35 + 0.65*low) + horizonHaze)*(1.0 + low);
-  float moonGlow = exp(-moonAngle*1.2)*0.30 + exp(-moonAngle*0.25)*0.08 + 0.06/(1.0 + 0.05*moonAngle*moonAngle);
-
-  // the sun glows only at dawn and dusk, not when it is high
   float dawn = 1.0 - smoothstep(0.05, 0.35, env.sunDir.y);
-  vec3 glow = DC_SUNGLOW_COL*sunGlow*dawn*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
-            + vec3(0.55, 0.68, 1.0)*moonGlow*dcGlowVisibility(env.moonDir.y)*night;
+  vec3 glow = DC_SUNGLOW_COL*dcGlowShape(sunAngle)*dawn*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
+            + vec3(0.55, 0.68, 1.0)*dcGlowShape(moonAngle)*dcGlowVisibility(env.moonDir.y)*night;
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
   return glow*DC_SUNMOON_GLOW*(1.0 - rain);
@@ -123,29 +109,6 @@ vec3 dcSunMoonDisc(vec3 dir, dc_environment env, float sunRadiance, float moonRa
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;
   return (vec3(1.15, 1.10, 1.00)*(sun*sunRadiance) + vec3(0.62, 0.70, 0.90)*(moon*moonRadiance))*(1.0 - rain);
-}
-
-// A simple sun glow over the terrain: a haze band along the horizon towards the sun (at dawn and dusk) and a
-// soft bloom round the sun, which also darkens the color it covers a little. Applied to the color of a surface
-// after the fog. rd: view direction, sunDir: direction of the sun, rain: [0.0, 1.0]
-vec3 dcTerrainSunGlow(vec3 rd, vec3 sunDir, vec3 color, float rain) {
-  float hl = length(rd.xz);
-  float sunHz = length(sunDir.xz);
-  vec2 sunDirXZ = sunHz > 0.0001 ? sunDir.xz/sunHz : vec2(1.0, 0.0);
-  float az = hl > 0.0001 ? dot(rd.xz/hl, sunDirXZ) : 0.0;
-  float sunAmt = max(dot(rd, sunDir), 0.0001);
-  float s2 = sunAmt*sunAmt;
-  float s4 = s2*s2;
-  float s16 = s4*s4*s4*s4;
-  float s64 = s16*s16*s16*s16;
-  float azPos = max(az*0.5 + 0.5, 0.0001);
-  float sunset = 1.0 - smoothstep(0.05, 0.35, sunDir.y);
-  float band = exp(-abs(rd.y)*6.0)*pow(azPos, 1.5)*sunset;
-  float glowWeight = band*0.40 + s4*0.18 + s16*0.32 + s64*0.45;
-  // only while the sun is up, never in rain
-  glowWeight *= smoothstep(-0.1, 0.05, sunDir.y)*(1.0 - rain)*DC_TERRAIN_GLOW;
-  float horFade = smoothstep(-0.2, 0.05, rd.y);
-  return color*(1.0 - clamp(glowWeight*0.7, 0.0, 0.5)*horFade) + DC_SUNGLOW_COL*(glowWeight*horFade);
 }
 
 #endif
