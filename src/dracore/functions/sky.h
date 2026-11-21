@@ -70,8 +70,7 @@ vec3 dcRenderSky(dc_skycolor s, vec3 viewDir) {
 
 // Glow around the sun and the moon, added to the sky before color correction. Both use the same shape: a
 // soft core and two thin tails that fade into the whole sky without any visible rim, so light has no sharp edge.
-// The sun's glow has the cream color of the sun (the same all day) and shows only at dawn and dusk, the
-// moon's glow is soft blue. No glow in rain.
+// The sun's glow is cream at dawn and dusk and neutral white by day, the moon's glow is soft blue. No glow in rain.
 float dcGlowShape(float angle) {
   return exp(-angle*1.2)*0.30 + exp(-angle*0.25)*0.08 + 0.06/(1.0 + 0.05*angle*angle);
 }
@@ -84,7 +83,8 @@ vec3 dcSunMoonGlow(vec3 dir, dc_environment env) {
   float moonAngle = sqrt(2.0*max(1.0 - dot(dir, env.moonDir), 0.0))/(DC_SUNMOON_DISC_RADIUS*DC_MOON_SIZE);
 
   float dawn = 1.0 - smoothstep(0.05, 0.35, env.sunDir.y);
-  vec3 glow = DC_SUNGLOW_COL*dcGlowShape(sunAngle)*dawn*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
+  vec3 sunCol = mix(DC_SUNGLOW_DAY_COL, DC_SUNGLOW_COL, dawn);
+  vec3 glow = sunCol*dcGlowShape(sunAngle)*dcGlowVisibility(env.sunDir.y)*(1.0 - night)
             + vec3(0.55, 0.68, 1.0)*dcGlowShape(moonAngle)*dcGlowVisibility(env.moonDir.y)*night;
 
   float rain = (env.underwater || env.nether || env.end) ? 0.0 : env.rainFactor;

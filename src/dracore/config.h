@@ -25,7 +25,8 @@
 #define DC_SUN_SIZE       1.0   // 0.3 tiny ~ 4.0 massive
 #define DC_MOON_SIZE      1.2   // 0.3 tiny ~ 4.0 massive
 #define DC_SUNMOON_GLOW   1.0   // 0.0 none ~ 2.0 strong, the soft glow around the sun and the moon
-#define DC_SUNGLOW_COL    vec3(1.0, 0.90, 0.45) // pale cream light of the sun, the same all day
+#define DC_SUNGLOW_DAY_COL vec3(1.0, 1.0, 1.0) // neutral white glow of the sun by day
+#define DC_SUNGLOW_COL    vec3(1.0, 0.90, 0.45) // cream glow of the sun at dawn and dusk
 
 // Clouds (cumulus, one layer in the sky)
 #define DC_CLOUD_COVER          0.52  // 0.0 clear ~ 1.0 overcast
