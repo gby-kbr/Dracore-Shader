@@ -28,8 +28,19 @@ vec3 dcColorCorrection(vec3 col) {
 
   col = pow(col, vec3_splat(1.0 / DC_GAMMA));
 
-  // a light S-curve: deeper shadows and brighter highlights, so the day looks clear and vibrant without any saturation boost
-  col = mix(col, col*col*(3.0 - 2.0*col), 0.35);
+  // a light S-curve: deeper shadows and brighter highlights, so the picture has depth and snap
+  col = mix(col, col*col*(3.0 - 2.0*col), DC_CONTRAST);
+
+  // vibrance: lifts only the muted colors (grass, wood, stone, the sky near the horizon) and leaves colors that
+  // are already strong alone, so nothing turns neon like a plain saturation boost would
+  float lum = dcLuminance(col);
+  float chroma = max(max(col.r, col.g), col.b) - min(min(col.r, col.g), col.b);
+  col = mix(vec3_splat(lum), col, 1.0 + DC_VIBRANCE*(1.0 - smoothstep(0.0, 0.6, chroma)));
+
+  // balance: a little warmth in the light parts and a little cool blue in the shadows
+  float shadow = 1.0 - smoothstep(0.0, 0.5, lum);
+  float light = smoothstep(0.35, 1.0, lum);
+  col *= vec3_splat(1.0) + DC_COLOR_BALANCE*(light*vec3(0.06, 0.02, -0.07) + shadow*vec3(-0.04, -0.01, 0.06));
 
   return col;
 }
