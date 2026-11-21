@@ -41,8 +41,9 @@ float dcNoise(vec2 p) {
 // drifting with the wind. p: world xz in blocks
 float dcMistPatch(vec2 p, float t) {
   vec2 q = (p + vec2(1.0, 0.45)*DC_MIST_WIND*t)*DC_MIST_SCALE;
-  float n = 0.55*dcNoise(q) + 0.30*dcNoise(q*2.1 + 7.0) + 0.15*dcNoise(q*4.3 + 3.0);
-  return 3.0*smoothstep(1.0 - DC_MIST_COVER, 1.0 - DC_MIST_COVER + 0.22, n);
+  float n = 0.65*dcNoise(q) + 0.30*dcNoise(q*2.1 + 7.0) + 0.05*dcNoise(q*4.3 + 3.0);
+  // a wide, gentle ramp: no hard banks, the mist thins out slowly into the gaps
+  return 2.2*smoothstep(1.0 - DC_MIST_COVER - 0.12, 1.0 - DC_MIST_COVER + 0.45, n);
 }
 
 // Low mist: density falls quickly with height, so it has a closed form too. The

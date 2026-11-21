@@ -116,11 +116,12 @@ void main() {
         } else {
             // a reflected ray that would go below the horizon is held at the horizon
             vec3 dir = normalize(vec3(reflDir.x, max(reflDir.y, 0.0), reflDir.z));
-            waterReflection = dcSkyRadiance(dir, env, skyColors, vec2(40.0, 6.0)*DC_WATER_SUN_GLITTER, s_DcCloudNoise, CameraPosition.xyz, time);
+            waterReflection = dcSkyRadiance(dir, env, skyColors, vec2(40.0, 6.0)*DC_WATER_SUN_GLITTER, s_DcCloudNoise, gPos, time); // the ray starts at the water, so the reflection stays in the world
         }
 
         waterReflectionAmount = dcWaterShade(diffuse, v_color0.a);
         if (!underwater) {
+            diffuse.a += (1.0 - diffuse.a)*DC_WATER_SURFACE_OPACITY; // black and less see-through
             waterReflectionAmount *= DC_WATER_SURFACE_DIM;
         }
 

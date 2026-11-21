@@ -10,8 +10,8 @@
 #define DC_EXPOSURE 0.75  // 0.4 dark ~ 1.5 bright, before the ACES film curve
 
 // Sky colors, zenith and horizon only (linear, before color correction)
-#define DC_DAY_ZENITH_COL     vec3(0.3, 0.9, 2.0)
-#define DC_DAY_HORIZON_COL    vec3(1.0, 1.6, 1.8)
+#define DC_DAY_ZENITH_COL     vec3(0.062, 0.213, 1.05)
+#define DC_DAY_HORIZON_COL    vec3(0.352, 0.642, 1.5)
 // Sunrise and sunset have no colors of their own, the day sky blends straight
 // into the night sky. Night: a deep navy zenith under a lighter, soft blue horizon
 #define DC_NIGHT_ZENITH_COL   vec3(0.0074, 0.0130, 0.0442)
@@ -38,20 +38,21 @@
 #define DC_CLOUD_WIND           1.5   // 0.0 still ~ 6.0 fast, speed of the clouds in blocks per second
 #define DC_CLOUD_GLOW_TINT      0.6   // 0.0 none ~ 1.0 strong, how much the clouds near the sun take the color of its glow
 #define DC_CLOUD_LIT_COL        vec3(3.5, 3.5, 3.5)    // the color of the clouds by day
-#define DC_CLOUD_HORIZON_TINT   0.6   // 0.0 own colors ~ 1.0 fully the color of the horizon
+#define DC_CLOUD_HORIZON_TINT   0.2   // 0.0 own colors ~ 1.0 fully the color of the horizon
 #define DC_CLOUD_NIGHT_LIT_COL  vec3(0.05, 0.07, 0.14)
 #define DC_CLOUD_RAIN_BRIGHTNESS 1.0 // 0.6 dark ~ 1.2 bright, rain clouds against the rain sky (1.0 the same as the sky)
 #define DC_CLOUD_RAIN_FADE      0.8   // 0.0 same ~ 1.0 gone, how much of the clouds is left in rain
 
 // Water (pure clear water with thin waves)
+#define DC_WATER_SURFACE_OPACITY 0.55 // 0.0 vanilla ~ 1.0 solid black, how much the water seen from above hides the bottom, not under the water
 #define DC_WATER_SURFACE_DIM    0.38  // 0.2 dark ~ 1.0 as bright as the sky mirror, only the surface seen from above, not under the water
 #define DC_WATER_MIRROR         0.35  // 0.0 none ~ 1.0 mirror, how much the water reflects the sky, the same at every view angle
-#define DC_WATER_WAVE_SHADE     0.25  // 0.0 none ~ 1.0 strong, waves as light and dark ripples, seen looking down too
+#define DC_WATER_WAVE_SHADE     0.18  // 0.0 none ~ 1.0 strong, waves as light and dark ripples, seen looking down too
 #define DC_WATER_TRANSPARENCY   1.0   // 0.0 invisible ~ 1.0 vanilla opacity
 #define DC_WATER_COLOR          vec3(0.0, 0.0, 0.0) // tint of the water, white = no tint
 #define DC_WATER_REFLECTION     1.5   // 0.0 none ~ 1.5 strong mirror
 #define DC_WATER_BUMP           0.01  // 0.01 flat ~ 0.2 choppy
-#define DC_WATER_WAVE_SCALE     0.3   // 0.3 long waves ~ 3.0 tiny ripples
+#define DC_WATER_WAVE_SCALE     0.15  // 0.3 long waves ~ 3.0 tiny ripples
 #define DC_WATER_WAVE_SPEED     0.8   // 0.2 calm ~ 2.0 turbulent
 #define DC_WATER_TEX_OPACITY    0.0   // 0.0 plain water ~ 1.0 vanilla water texture
 
@@ -73,10 +74,10 @@
 #define DC_FOG_FALLOFF       0.02  // 0.008 deep layer ~ 0.05 thin ground fog, thinning with height
 #define DC_FOG_RAIN          6.0   // 0.0 none ~ 12.0 very dense, extra fog in rain
 #define DC_FOG_RAIN_DARKEN   0.25  // 0.0 sky colored ~ 0.6 dark grey, how dark the fog gets in rain
-#define DC_MIST_DENSITY      0.003 // 0.0 none ~ 0.008 thick, low mist banks over water and ground
+#define DC_MIST_DENSITY      0.0025 // 0.0 none ~ 0.008 thick, low mist banks over water and ground
 #define DC_MIST_FALLOFF      0.08  // 0.05 deep layer ~ 0.25 thin layer hugging the ground
 #define DC_MIST_COVER        0.45  // 0.1 few patches ~ 0.9 almost everywhere
-#define DC_MIST_SCALE        0.03  // 0.01 huge banks ~ 0.1 small patches
+#define DC_MIST_SCALE        0.015 // 0.01 huge banks ~ 0.1 small patches
 #define DC_MIST_WIND         2.5   // 0.0 still ~ 10.0 fast, how fast the banks drift
 #define DC_MIST_RAIN         1.0   // 0.0 none ~ 4.0 dense, extra mist in rain
 #define DC_MIST_BRIGHTNESS   0.6   // 0.0 same as the sky ~ 1.5 whiter, brightness of the mist by day

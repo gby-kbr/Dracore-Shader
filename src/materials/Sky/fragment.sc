@@ -13,6 +13,7 @@
     uniform vec4 FogColor;
     uniform vec4 CameraPosition;
     uniform vec4 SkyColor;
+    uniform vec4 CloudColor;
 #endif
 
 void main() {
@@ -30,7 +31,10 @@ void main() {
         // the fog gives no weather under the water, the game's sky color does: grey in rain, blue when clear
         float hi = max(max(SkyColor.r, SkyColor.g), SkyColor.b);
         float sat = (hi - min(min(SkyColor.r, SkyColor.g), SkyColor.b))/max(hi, 0.02);
-        env.rainFactor = 1.0 - smoothstep(0.10, 0.30, sat);
+        float satRain = 1.0 - smoothstep(0.10, 0.30, sat);
+        // the clouds of the game turn dark grey in rain, by day: clear clouds are bright
+        float cloudRain = clamp((0.85 - dot(CloudColor.rgb, vec3(0.2126, 0.7152, 0.0722)))/0.3, 0.0, 1.0)*smoothstep(0.15, 0.4, env.sunDir.y);
+        env.rainFactor = max(satRain, cloudRain);
     }
 
     vec3 sky;
