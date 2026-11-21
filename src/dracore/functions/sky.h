@@ -125,4 +125,27 @@ vec3 dcSunMoonDisc(vec3 dir, dc_environment env, float sunRadiance, float moonRa
   return (vec3(1.15, 1.10, 1.00)*(sun*sunRadiance) + vec3(0.62, 0.70, 0.90)*(moon*moonRadiance))*(1.0 - rain);
 }
 
+// A simple sun glow over the terrain: a haze band along the horizon towards the sun (at dawn and dusk) and a
+// soft bloom round the sun, which also darkens the color it covers a little. Applied to the color of a surface
+// after the fog. rd: view direction, sunDir: direction of the sun, rain: [0.0, 1.0]
+vec3 dcTerrainSunGlow(vec3 rd, vec3 sunDir, vec3 color, float rain) {
+  float hl = length(rd.xz);
+  float sunHz = length(sunDir.xz);
+  vec2 sunDirXZ = sunHz > 0.0001 ? sunDir.xz/sunHz : vec2(1.0, 0.0);
+  float az = hl > 0.0001 ? dot(rd.xz/hl, sunDirXZ) : 0.0;
+  float sunAmt = max(dot(rd, sunDir), 0.0001);
+  float s2 = sunAmt*sunAmt;
+  float s4 = s2*s2;
+  float s16 = s4*s4*s4*s4;
+  float s64 = s16*s16*s16*s16;
+  float azPos = max(az*0.5 + 0.5, 0.0001);
+  float sunset = 1.0 - smoothstep(0.05, 0.35, sunDir.y);
+  float band = exp(-abs(rd.y)*6.0)*pow(azPos, 1.5)*sunset;
+  float glowWeight = band*0.40 + s4*0.18 + s16*0.32 + s64*0.45;
+  // only while the sun is up, never in rain
+  glowWeight *= smoothstep(-0.1, 0.05, sunDir.y)*(1.0 - rain)*DC_TERRAIN_GLOW;
+  float horFade = smoothstep(-0.2, 0.05, rd.y);
+  return color*(1.0 - clamp(glowWeight*0.7, 0.0, 0.5)*horFade) + DC_SUNGLOW_COL*(glowWeight*horFade);
+}
+
 #endif

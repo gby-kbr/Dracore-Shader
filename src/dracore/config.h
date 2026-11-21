@@ -10,8 +10,8 @@
 #define DC_EXPOSURE 0.75  // 0.4 dark ~ 1.5 bright, before the ACES film curve
 
 // Sky colors, zenith and horizon only (linear, before color correction)
-#define DC_DAY_ZENITH_COL     vec3(0.062, 0.213, 1.05)
-#define DC_DAY_HORIZON_COL    vec3(0.352, 0.642, 1.5)
+#define DC_DAY_ZENITH_COL     vec3(0.101, 0.213, 0.581)
+#define DC_DAY_HORIZON_COL    vec3(0.485, 0.714, 1.136)
 // Sunrise and sunset have no colors of their own, the day sky blends straight
 // into the night sky. Night: a deep navy zenith under a lighter, soft blue horizon
 #define DC_NIGHT_ZENITH_COL   vec3(0.0074, 0.0130, 0.0442)
@@ -25,6 +25,7 @@
 #define DC_SUN_SIZE       1.0   // 0.3 tiny ~ 4.0 massive
 #define DC_MOON_SIZE      1.2   // 0.3 tiny ~ 4.0 massive
 #define DC_SUNMOON_GLOW   1.0   // 0.0 none ~ 2.0 strong, the soft glow around the sun and the moon
+#define DC_TERRAIN_GLOW   1.0   // 0.0 off ~ 2.0 strong, the sun glow on the terrain and the water, a test
 #define DC_SUNGLOW_COL    vec3(1.0, 0.90, 0.45) // pale cream light of the sun, the same all day
 
 // Clouds (cumulus, one layer in the sky)
@@ -44,7 +45,7 @@
 #define DC_CLOUD_RAIN_FADE      0.8   // 0.0 same ~ 1.0 gone, how much of the clouds is left in rain
 
 // Water (pure clear water with thin waves)
-#define DC_WATER_SURFACE_OPACITY 0.55 // 0.0 vanilla ~ 1.0 solid black, how much the water seen from above hides the bottom, not under the water
+#define DC_WATER_SURFACE_OPACITY 1.0  // 0.0 vanilla ~ 1.0 solid black, how much the water seen from above hides the bottom, not under the water
 #define DC_WATER_SURFACE_DIM    0.38  // 0.2 dark ~ 1.0 as bright as the sky mirror, only the surface seen from above, not under the water
 #define DC_WATER_MIRROR         0.35  // 0.0 none ~ 1.0 mirror, how much the water reflects the sky, the same at every view angle
 #define DC_WATER_WAVE_SHADE     0.18  // 0.0 none ~ 1.0 strong, waves as light and dark ripples, seen looking down too
@@ -70,9 +71,9 @@
 
 // Fog, overworld only
 #define DC_FOG_BASE_HEIGHT   63.0  // height in blocks where the fog is thickest (sea level)
-#define DC_FOG_DENSITY       0.003 // 0.0015 thin ~ 0.012 thick, light lost per block at the base height
+#define DC_FOG_DENSITY       0.0045// 0.0015 thin ~ 0.012 thick, light lost per block at the base height
 #define DC_FOG_FALLOFF       0.02  // 0.008 deep layer ~ 0.05 thin ground fog, thinning with height
-#define DC_FOG_RAIN          6.0   // 0.0 none ~ 12.0 very dense, extra fog in rain
+#define DC_FOG_RAIN          9.0   // 0.0 none ~ 12.0 very dense, extra fog in rain
 #define DC_FOG_RAIN_DARKEN   0.25  // 0.0 sky colored ~ 0.6 dark grey, how dark the fog gets in rain
 #define DC_MIST_DENSITY      0.0025 // 0.0 none ~ 0.008 thick, low mist banks over water and ground
 #define DC_MIST_FALLOFF      0.08  // 0.05 deep layer ~ 0.25 thin layer hugging the ground
