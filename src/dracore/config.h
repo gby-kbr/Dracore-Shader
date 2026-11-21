@@ -45,9 +45,9 @@
 #define DC_CLOUD_RAIN_FADE      0.8   // 0.0 same ~ 1.0 gone, how much of the clouds is left in rain
 
 // Water (pure clear water with thin waves)
-#define DC_WATER_SURFACE_OPACITY 0.9  // 0.0 vanilla ~ 1.0 solid black, how much the water seen from above hides the bottom, not under the water
+#define DC_WATER_SURFACE_OPACITY 0.15 // 0.0 vanilla ~ 1.0 solid black, how much the water seen from above hides the bottom, not under the water
 #define DC_WATER_CLOUD_REFLECTION 0.5 // 0.0 no clouds in the water ~ 1.0 as bright as in the sky
-#define DC_WATER_SURFACE_DIM    0.3   // 0.2 dark ~ 1.0 as bright as the sky mirror, only the surface seen from above, not under the water
+#define DC_WATER_SURFACE_DIM    0.5   // 0.2 dark ~ 1.0 as bright as the sky mirror, only the surface seen from above, not under the water
 #define DC_WATER_MIRROR         0.35  // 0.0 none ~ 1.0 mirror, how much the water reflects the sky, the same at every view angle
 #define DC_WATER_WAVE_SHADE     0.18  // 0.0 none ~ 1.0 strong, waves as light and dark ripples, seen looking down too
 #define DC_WATER_TRANSPARENCY   1.0   // 0.0 invisible ~ 1.0 vanilla opacity
