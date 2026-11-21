@@ -4,7 +4,6 @@ $input v_color0, v_texcoord0, v_worldPos
 #include <dracore/main.sh>
 
 SAMPLER2D_AUTOREG(s_SkyTexture);
-uniform vec4 SkyColor;
 
 void main() {
     vec3 dir = normalize(v_worldPos);

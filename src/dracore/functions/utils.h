@@ -2,8 +2,6 @@
 #define DC_UTILS_H
 
 #define DC_PI       3.141592
-#define DC_PI_HALF  1.570796
-#define DC_PI_QUART 0.785398
 
 // 2D rotation matrix for an angle in radians
 mat2 dcRmat2(float t) {

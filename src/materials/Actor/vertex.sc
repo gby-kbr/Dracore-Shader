@@ -17,7 +17,6 @@ uniform vec4 FogColor;
 uniform vec4 FogControl;
 uniform vec4 ViewPositionAndTime;
 uniform vec4 TimeOfDay;
-uniform vec4 CameraPosition;
 uniform vec4 UVAnimation;
 uniform mat4 Bones[8];
 
