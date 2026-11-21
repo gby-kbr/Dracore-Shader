@@ -28,6 +28,7 @@ bool isOccluded(const vec2 occlusionUV, const float occlusionHeight, const float
 
 void main() {
     vec4 diffuse = texture2D(s_WeatherTexture, v_texcoord0);
+    diffuse.rgb = dcSRGBToLinear(diffuse.rgb);
     vec4 occlusionSample = texture2D(s_OcclusionTexture, v_occlusionUV);
 
     float occlusionLuminance = occlusionSample.r;

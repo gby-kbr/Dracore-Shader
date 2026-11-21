@@ -68,6 +68,8 @@ void main() {
     }
 #endif
 
+    diffuse.rgb = dcSRGBToLinear(diffuse.rgb); // textures are sRGB, the rest works in linear light
+
 #if defined(TRANSPARENT) && defined(DITHERING)
     if (v_ditheringAndMaskTinting.x > 0.5) {
         if (evaluateDitherDiscard(v_clipPosition, v_worldPosition.xyz, ViewPositionAndTime.xyz, u_view, DitherParams, DitherParams2[2])) {

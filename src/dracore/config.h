@@ -7,19 +7,17 @@
 */
 
 // Color correction
-#define DC_TONEMAP 1      // 0 Reinhard-Jodie (soft, a little washed) ~ 1 ACES film (punchy, vibrant) ~ 2 ACES Hill (very filmic, darker greens). Retune exposure and gamma when you change it
-#define DC_GAMMA 1.1      // 0.3 low ~ 2.0 high
-#define DC_EXPOSURE 1.1   // [toggle] 0.5 dark ~ 3.0 bright
+#define DC_EXPOSURE 0.75  // 0.4 dark ~ 1.5 bright, before the ACES film curve
 
 // Sky colors, zenith and horizon only (linear, before color correction)
 #define DC_DAY_ZENITH_COL     vec3(0.3, 0.9, 2.0)
 #define DC_DAY_HORIZON_COL    vec3(1.0, 1.6, 1.8)
 // Sunrise and sunset have no colors of their own, the day sky blends straight
 // into the night sky. Night: a deep navy zenith under a lighter, soft blue horizon
-#define DC_NIGHT_ZENITH_COL   vec3(0.0148, 0.0261, 0.0884)
-#define DC_NIGHT_HORIZON_COL  vec3(0.0307, 0.0460, 0.1066)
-#define DC_RAIN_ZENITH_COL    vec3(0.40, 0.40, 0.40) // pure grey, a little dark
-#define DC_RAIN_HORIZON_COL   vec3(0.52, 0.52, 0.52) // pure grey, a little dark
+#define DC_NIGHT_ZENITH_COL   vec3(0.0074, 0.0130, 0.0442)
+#define DC_NIGHT_HORIZON_COL  vec3(0.0154, 0.0230, 0.0533)
+#define DC_RAIN_ZENITH_COL    vec3(0.22, 0.22, 0.22) // pure grey, a little dark
+#define DC_RAIN_HORIZON_COL   vec3(0.30, 0.30, 0.30) // pure grey, a little dark
 #define DC_SKY_RAIN_MIX       1.0    // 0.0 no change ~ 1.0 fully overcast in rain
 #define DC_UNDERWATER_TINT    vec3(0.9, 1.0, 0.9) // sky tint when underwater
 

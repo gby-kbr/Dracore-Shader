@@ -54,6 +54,7 @@ void main() {
     albedo.a = max(UseAlphaRewrite.x, albedo.a);
 #endif
 
+    albedo.rgb = dcSRGBToLinear(albedo.rgb); // textures are sRGB, the rest works in linear light
     albedo = applyActorDiffuse(albedo, v_color0.rgb, v_light, ColorBased.x, OverlayColor);
 
 #if defined(TRANSPARENT)
